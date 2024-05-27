@@ -3,7 +3,7 @@ import {
   Box,
   Button,
   Flex,
-  Input,
+  Input, InputGroup, InputLeftAddon, InputLeftElement,
   Table,
   Tbody,
   Td,
@@ -81,50 +81,52 @@ function BoardList(props) {
       <Box>
         <Table>
           <Thead>
-            <Tr>
-              <Th>#</Th>
-              <Th>날짜</Th>
-              <Th>수입</Th>
-              <Th>지출</Th>
-              <Th>카테고리</Th>
-              <Th>방법</Th>
-              <Th>입력/수정</Th>
+            <Tr bgColor={"gray.50"}>
+              <Th fontSize={"1rem"}>#</Th>
+              <Th fontSize={"1rem"}>날짜</Th>
+              <Th fontSize={"1rem"}>수입</Th>
+              <Th fontSize={"1rem"}>지출</Th>
+              <Th fontSize={"1rem"}>카테고리</Th>
+              <Th fontSize={"1rem"}>방법</Th>
+              <Th fontSize={"1rem"}>입력</Th>
             </Tr>
           </Thead>
-          <Tbody>
-            <Tr cursor={"pointer"} _hover={{ bgColor: "gray.200 " }}>
+          <Tbody >
+            <Tr cursor={"pointer"} _hover={{ bgColor: "gray.100 " }}>
               <Td>{1}</Td>
               <Td>
                 <Input type={"date"} />
               </Td>
               <Td>
+                <InputGroup>
+                  <InputLeftAddon color={"blue"} children="+" />
                 <Input
                   type={"text"}
                   minWidth={"150px"}
                   value={income}
+                  color={"blue"}
                   onChange={handleIncomeChange}
                 />
+                </InputGroup>
               </Td>
               <Td>
+                <InputGroup>
+                  <InputLeftAddon color={"red"} children="-" />
                 <Input
                   type={"text"}
                   minWidth={"150px"}
                   value={expense}
+                  color={"red"}
                   onChange={handleExpenseChange}
-                />
+                /></InputGroup>
               </Td>
               <Td>
                 <Box>
-                  <Flex>
+                  <Flex >
                     <MiniBox text={"급여"} />
                     <MiniBox text={"여행"} />
                     <MiniBox text={"간식"} />
                     <MiniBox text={"식비"} />
-                    <MiniBox text={"예시"} />
-                  </Flex>
-                  <Flex>
-                    <MiniBox text={"예시"} />
-                    <MiniBox text={"예시"} />
                     <MiniBox text={"예시"} />
                     <MiniBox text={"예시"} />
                     <MiniBox text={"예시"} />
@@ -136,9 +138,8 @@ function BoardList(props) {
               </Td>
               <Td>
                 <Flex direction={"column"}>
-                  <Button m={"3px"}>추가</Button>
-                  <Button m={"3px"}>수정</Button>
-                  <Button m={"3px"}>삭제</Button>
+                  <Button colorScheme={"blue"} m={"3px"}>입력,수정</Button>
+                  <Button colorScheme={"red"} m={"3px"}>삭제</Button>
                 </Flex>
               </Td>
             </Tr>
