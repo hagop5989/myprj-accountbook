@@ -7,7 +7,6 @@ import {
   Table,
   Tbody,
   Td,
-  Th,
   Thead,
   Tr,
 } from "@chakra-ui/react";
@@ -77,76 +76,83 @@ function BoardList(props) {
 
   return (
     <Box>
-      <Box>회원목록</Box>
       <Box>
         <Table>
           <Thead>
             <Tr>
-              <Th>#</Th>
-              <Th>날짜</Th>
-              <Th>수입</Th>
-              <Th>지출</Th>
-              <Th>카테고리</Th>
-              <Th>방법</Th>
-              <Th>입력/수정</Th>
+              <Td fontSize={"1.5rem"}>#</Td>
+              <Td fontSize={"1.5rem"}>날짜</Td>
+              <Td fontSize={"1.5rem"}>수입</Td>
+              <Td fontSize={"1.5rem"}>지출</Td>
+              <Td fontSize={"1.5rem"}>카테고리</Td>
+              <Td fontSize={"1.5rem"}>방법</Td>
+              <Td fontSize={"1.5rem"}>입력/수정</Td>
             </Tr>
           </Thead>
           <Tbody>
-            <Tr cursor={"pointer"} _hover={{ bgColor: "gray.200 " }}>
-              <Td>{1}</Td>
-              <Td>
-                <Input type={"date"} />
-              </Td>
-              <Td>
-                <Input
-                  type={"text"}
-                  minWidth={"150px"}
-                  value={income}
-                  onChange={handleIncomeChange}
-                />
-              </Td>
-              <Td>
-                <Input
-                  type={"text"}
-                  minWidth={"150px"}
-                  value={expense}
-                  onChange={handleExpenseChange}
-                />
-              </Td>
-              <Td>
-                <Box>
-                  <Flex>
-                    <MiniBox text={"급여"} />
-                    <MiniBox text={"여행"} />
-                    <MiniBox text={"간식"} />
-                    <MiniBox text={"식비"} />
-                    <MiniBox text={"예시"} />
-                  </Flex>
-                  <Flex>
-                    <MiniBox text={"예시"} />
-                    <MiniBox text={"예시"} />
-                    <MiniBox text={"예시"} />
-                    <MiniBox text={"예시"} />
-                    <MiniBox text={"예시"} />
-                  </Flex>
-                </Box>
-              </Td>
-              <Td>
-                <textarea />
-              </Td>
-              <Td>
-                <Flex direction={"column"}>
-                  <Button m={"3px"}>추가</Button>
-                  <Button m={"3px"}>수정</Button>
-                  <Button m={"3px"}>삭제</Button>
-                </Flex>
-              </Td>
-            </Tr>
+            <BoardAccountLists />
           </Tbody>
         </Table>
       </Box>
     </Box>
   );
+
+  function BoardAccountLists() {
+    return (
+      <Box>
+        <Tr cursor={"pointer"} _hover={{ bgColor: "gray.200 " }}>
+          <Td>{1}</Td>
+          <Td>
+            <Input type={"date"} />
+          </Td>
+          <Td>
+            <Input
+              type={"text"}
+              minWidth={"150px"}
+              value={income}
+              onChange={handleIncomeChange}
+            />
+          </Td>
+          <Td>
+            <Input
+              type={"text"}
+              minWidth={"150px"}
+              value={expense}
+              onChange={handleExpenseChange}
+            />
+          </Td>
+          <Td>
+            <Box>
+              <Flex>
+                <MiniBox text={"급여"} />
+                <MiniBox text={"여행"} />
+                <MiniBox text={"간식"} />
+                <MiniBox text={"식비"} />
+                <MiniBox text={"예시"} />
+              </Flex>
+              <Flex>
+                <MiniBox text={"예시"} />
+                <MiniBox text={"예시"} />
+                <MiniBox text={"예시"} />
+                <MiniBox text={"예시"} />
+                <MiniBox text={"예시"} />
+              </Flex>
+            </Box>
+          </Td>
+          <Td>
+            <textarea />
+          </Td>
+          <Td>
+            <Flex direction={"column"}>
+              <Button m={"3px"}>추가</Button>
+              <Button m={"3px"}>수정</Button>
+              <Button m={"3px"}>삭제</Button>
+            </Flex>
+          </Td>
+        </Tr>
+      </Box>
+    );
+  }
 }
 
 export default BoardList;
