@@ -1,5 +1,5 @@
 import React from "react";
-import {Box, Flex, InputLeftElement, Spacer} from "@chakra-ui/react";
+import { Box, Flex, Spacer } from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
@@ -14,13 +14,12 @@ function Navbar(props) {
   return (
     <Box marginY={"20px"}>
       <Flex gap={3}>
-        <Box {...navCss}>가계부</Box>
+        <Box {...navCss}>부</Box>
         <Box {...navCss}>설정</Box>
 
         <Spacer />
         <Box {...navCss}>
           <FontAwesomeIcon icon={faUser} />
-
         </Box>
 
         <Box

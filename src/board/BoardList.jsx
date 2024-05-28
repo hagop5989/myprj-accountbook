@@ -1,21 +1,29 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
   Flex,
-  Input, InputGroup, InputLeftAddon, InputLeftElement,
+  Input,
+  InputGroup,
+  InputLeftAddon,
   Table,
   Tbody,
   Td,
+  Textarea,
   Th,
   Thead,
   Tr,
 } from "@chakra-ui/react";
+import axios from "axios";
 
 function BoardList(props) {
-  // 1000 단위 포맷터 시작
+  const [incomeForm, setIncomeForm] = useState("");
+  const [expenseForm, setExpenseForm] = useState("");
+  const [date, setDate] = useState("");
   const [income, setIncome] = useState("");
   const [expense, setExpense] = useState("");
+  const [how, setHow] = useState("");
+  const [categories, setCategories] = useState([]);
 
   const formatNumber = (num) => {
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -23,56 +31,77 @@ function BoardList(props) {
 
   const handleIncomeChange = (event) => {
     const input = event.target.value;
-    const plainNumber = input.replace(/,/g, ""); // Remove existing commas
+    setIncome(input);
+    const plainNumber = input.replace(/,/g, "");
     if (!isNaN(plainNumber)) {
-      // Check if the input is a number
       const formattedNumber = formatNumber(plainNumber);
-      setIncome(formattedNumber);
+      setIncomeForm(formattedNumber);
     }
   };
 
   const handleExpenseChange = (event) => {
     const input = event.target.value;
-    const plainNumber = input.replace(/,/g, ""); // Remove existing commas
+    setExpense(input);
+    const plainNumber = input.replace(/,/g, "");
     if (!isNaN(plainNumber)) {
-      // Check if the input is a number
       const formattedNumber = formatNumber(plainNumber);
-      setExpense(formattedNumber);
+      setExpenseForm(formattedNumber);
     }
   };
-  // 1000 단위 포맷터 끝
 
-  // 미니박스 시작
-  function MiniBox({ text }) {
-    const [boxColor, setBoxColor] = useState("");
-    const [checked, setChecked] = useState(false);
-
-    function changeBoxColor() {
-      const newChecked = !checked;
-      setChecked(newChecked);
-      if (newChecked) {
-        setBoxColor("coral");
+  const handleCategoryChange = (text) => {
+    setCategories((prevCategories) => {
+      if (prevCategories.includes(text)) {
+        return prevCategories.filter((category) => category !== text);
       } else {
-        setBoxColor("");
+        return [...prevCategories, text];
       }
-    }
-    // 미니박스 끝
+    });
+  };
+
+  useEffect(() => {
+    console.log("Categories updated: ", categories);
+  }, [categories]);
+
+  const MiniBox = ({ text }) => {
+    const isSelected = categories.includes(text);
+
+    const changeBoxColor = () => {
+      handleCategoryChange(text);
+    };
 
     return (
       <Box
         aria-valuetext={text}
         onClick={changeBoxColor}
-        bgColor={boxColor}
+        bgColor={isSelected ? "coral" : ""}
         boxSize={"50px"}
         border={"1px solid black"}
         borderRadius={"5px"}
         textAlign="center"
         lineHeight={"50px"}
         margin={"2px"}
+        cursor={"pointer"}
       >
         {text}
       </Box>
     );
+  };
+
+  function handleRowAdd() {
+    axios
+      .post("/api/addRow", { date, income, expense, how, categories })
+      .then((res) => {})
+      .catch()
+      .finally();
+  }
+
+  function handleRowDelete() {
+    axios
+      .post("/api/deleteRow")
+      .then((res) => {})
+      .catch()
+      .finally();
   }
 
   return (
@@ -91,55 +120,67 @@ function BoardList(props) {
               <Th fontSize={"1rem"}>입력</Th>
             </Tr>
           </Thead>
-          <Tbody >
+          <Tbody>
             <Tr cursor={"pointer"} _hover={{ bgColor: "gray.100 " }}>
               <Td>{1}</Td>
               <Td>
-                <Input type={"date"} />
+                <Input
+                  type={"date"}
+                  onChange={(e) => setDate(e.target.value)}
+                />
               </Td>
               <Td>
                 <InputGroup>
-                  <InputLeftAddon color={"blue"} children="+" />
-                <Input
-                  type={"text"}
-                  minWidth={"150px"}
-                  value={income}
-                  color={"blue"}
-                  onChange={handleIncomeChange}
-                />
+                  <InputLeftAddon color="blue" children="+" />
+                  <Input
+                    type={"text"}
+                    width={"150px"}
+                    value={incomeForm}
+                    color={"blue"}
+                    onChange={handleIncomeChange}
+                  />
                 </InputGroup>
               </Td>
               <Td>
                 <InputGroup>
                   <InputLeftAddon color={"red"} children="-" />
-                <Input
-                  type={"text"}
-                  minWidth={"150px"}
-                  value={expense}
-                  color={"red"}
-                  onChange={handleExpenseChange}
-                /></InputGroup>
+                  <Input
+                    type={"text"}
+                    width={"150px"}
+                    value={expenseForm}
+                    color={"red"}
+                    onChange={handleExpenseChange}
+                  />
+                </InputGroup>
               </Td>
               <Td>
                 <Box>
-                  <Flex >
+                  <Flex>
                     <MiniBox text={"급여"} />
                     <MiniBox text={"여행"} />
                     <MiniBox text={"간식"} />
                     <MiniBox text={"식비"} />
-                    <MiniBox text={"예시"} />
-                    <MiniBox text={"예시"} />
-                    <MiniBox text={"예시"} />
+                    <MiniBox text={"예시1"} />
+                    <MiniBox text={"예시2"} />
+                    <MiniBox text={"예시3"} />
                   </Flex>
                 </Box>
               </Td>
               <Td>
-                <textarea />
+                <Textarea onChange={(e) => setHow(e.target.value)} />
               </Td>
               <Td>
                 <Flex direction={"column"}>
-                  <Button colorScheme={"blue"} m={"3px"}>입력,수정</Button>
-                  <Button colorScheme={"red"} m={"3px"}>삭제</Button>
+                  <Button colorScheme={"blue"} m={"3px"} onClick={handleRowAdd}>
+                    입력
+                  </Button>
+                  <Button
+                    colorScheme={"red"}
+                    m={"3px"}
+                    onClick={handleRowDelete}
+                  >
+                    삭제
+                  </Button>
                 </Flex>
               </Td>
             </Tr>
