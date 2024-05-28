@@ -19,11 +19,14 @@ import axios from "axios";
 function BoardList(props) {
   const [incomeForm, setIncomeForm] = useState("");
   const [expenseForm, setExpenseForm] = useState("");
+
   const [date, setDate] = useState("");
-  const [income, setIncome] = useState("");
-  const [expense, setExpense] = useState("");
+  const [income, setIncome] = useState(0);
+  const [expense, setExpense] = useState(0);
   const [how, setHow] = useState("");
   const [categories, setCategories] = useState([]);
+  const [rows, setRows] = useState([]);
+  const [boardList, setBoardList] = useState([]);
 
   const formatNumber = (num) => {
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -59,10 +62,6 @@ function BoardList(props) {
     });
   };
 
-  useEffect(() => {
-    console.log("Categories updated: ", categories);
-  }, [categories]);
-
   const MiniBox = ({ text }) => {
     const isSelected = categories.includes(text);
 
@@ -88,11 +87,50 @@ function BoardList(props) {
     );
   };
 
-  function handleRowAdd() {
+  useEffect(() => {
     axios
-      .post("/api/addRow", { date, income, expense, how, categories })
-      .then((res) => {})
-      .catch()
+      .get("/api/board/list")
+      .then((res) => {
+        setBoardList(res.data.boardList);
+        setRows(
+          res.data.boardList.map((board) => ({
+            ...board,
+            income: formatNumber(board.income.toString()), // 숫자에 쉼표 추가하여 포맷팅
+            expense: formatNumber(board.expense.toString()), // 숫자에 쉼표 추가하여 포맷팅
+          })),
+        );
+      })
+      .catch((e) => console.error("Error fetching board list:", e));
+  }, []); // 의존성 배열을 빈 배열로 설정하여 한 번만 실행되도록 함
+
+  function handleRowAdd() {
+    const newRow = {
+      date,
+      income: parseInt(income.replace(/,/g, "")), // 쉼표 제거 후 숫자로 변환
+      expense: parseInt(expense.replace(/,/g, "")), // 쉼표 제거 후 숫자로 변환
+      how,
+      categories,
+    };
+    axios
+      .post("/api/board/addRow", newRow)
+      .then((res) => {
+        setRows((prevRows) => [
+          ...prevRows,
+          {
+            ...newRow,
+            income: formatNumber(newRow.income.toString()), // 숫자에 쉼표 추가하여 포맷팅
+            expense: formatNumber(newRow.expense.toString()), // 숫자에 쉼표 추가하여 포맷팅
+          },
+        ]);
+        setDate("");
+        setIncome("");
+        setIncomeForm("");
+        setExpense("");
+        setExpenseForm("");
+        setHow("");
+        setCategories([]);
+      })
+      .catch((e) => console.error({ e }))
       .finally();
   }
 
@@ -121,11 +159,27 @@ function BoardList(props) {
             </Tr>
           </Thead>
           <Tbody>
+            {rows.map((row, index) => (
+              <Tr
+                key={index}
+                cursor={"pointer"}
+                _hover={{ bgColor: "gray.100 " }}
+              >
+                <Td>{index + 1}</Td>
+                <Td datatype={"date"}>{row.date}</Td>
+                <Td color="blue.500">{row.income}</Td>
+                <Td color="red.500">{row.expense}</Td>
+                <Td>{row.categories.join(", ")}</Td>
+                <Td>{row.how}</Td>
+                <Td> </Td>
+              </Tr>
+            ))}
             <Tr cursor={"pointer"} _hover={{ bgColor: "gray.100 " }}>
-              <Td>{1}</Td>
+              <Td>{rows.length + 1}</Td>
               <Td>
                 <Input
                   type={"date"}
+                  defaultValue="2024-01-01"
                   onChange={(e) => setDate(e.target.value)}
                 />
               </Td>
