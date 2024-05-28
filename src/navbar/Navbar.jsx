@@ -1,7 +1,7 @@
 import React from "react";
-import { Box, Flex, Spacer } from "@chakra-ui/react";
+import {Box, Flex, InputLeftElement, Spacer} from "@chakra-ui/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHouse, faUser } from "@fortawesome/free-solid-svg-icons";
+import { faUser } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
 function Navbar(props) {
@@ -10,20 +10,17 @@ function Navbar(props) {
     fontSize: "1.5rem",
     cursor: "pointer",
     _hover: { bgColor: "gray.200" },
-    // border: "0.5px solid black",
   };
   return (
-    <Box>
+    <Box marginY={"20px"}>
       <Flex gap={3}>
-        <Box {...navCss} onClick={navigate("/")}>
-          <FontAwesomeIcon icon={faHouse} />
-        </Box>
-        <Box {...navCss}>부</Box>
+        <Box {...navCss}>가계부</Box>
         <Box {...navCss}>설정</Box>
 
         <Spacer />
         <Box {...navCss}>
           <FontAwesomeIcon icon={faUser} />
+
         </Box>
 
         <Box
