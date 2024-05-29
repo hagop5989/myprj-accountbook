@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Box,
   Button,
+  Checkbox,
   Flex,
   Input,
   InputGroup,
@@ -27,6 +28,8 @@ function BoardList(props) {
   const [categories, setCategories] = useState([]);
   const [rows, setRows] = useState([]);
   const [boardList, setBoardList] = useState([]);
+  const [postSuccess, setPostSuccess] = useState(false);
+  const [checked, setChecked] = useState(false);
 
   const formatNumber = (num) => {
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
@@ -80,34 +83,17 @@ function BoardList(props) {
         textAlign="center"
         lineHeight={"50px"}
         margin={"2px"}
-        cursor={"pointer"}
       >
         {text}
       </Box>
     );
   };
 
-  useEffect(() => {
-    axios
-      .get("/api/board/list")
-      .then((res) => {
-        setBoardList(res.data.boardList);
-        setRows(
-          res.data.boardList.map((board) => ({
-            ...board,
-            income: formatNumber(board.income.toString()), // 숫자에 쉼표 추가하여 포맷팅
-            expense: formatNumber(board.expense.toString()), // 숫자에 쉼표 추가하여 포맷팅
-          })),
-        );
-      })
-      .catch((e) => console.error("Error fetching board list:", e));
-  }, []); // 의존성 배열을 빈 배열로 설정하여 한 번만 실행되도록 함
-
   function handleRowAdd() {
     const newRow = {
       date,
-      income: parseInt(income.replace(/,/g, "")), // 쉼표 제거 후 숫자로 변환
-      expense: parseInt(expense.replace(/,/g, "")), // 쉼표 제거 후 숫자로 변환
+      income: parseInt(income.replace(/,/g, "")),
+      expense: parseInt(expense.replace(/,/g, "")),
       how,
       categories,
     };
@@ -118,29 +104,74 @@ function BoardList(props) {
           ...prevRows,
           {
             ...newRow,
-            income: formatNumber(newRow.income.toString()), // 숫자에 쉼표 추가하여 포맷팅
-            expense: formatNumber(newRow.expense.toString()), // 숫자에 쉼표 추가하여 포맷팅
+            income: formatNumber(newRow.income.toString()),
+            expense: formatNumber(newRow.expense.toString()),
           },
         ]);
+        setPostSuccess(!postSuccess);
+      })
+      .catch((e) => console.error({ e }))
+      .finally(() => {
         setDate("");
-        setIncome("");
+        setIncome(0);
         setIncomeForm("");
-        setExpense("");
+        setExpense(0);
         setExpenseForm("");
         setHow("");
         setCategories([]);
-      })
-      .catch((e) => console.error({ e }))
-      .finally();
+      });
   }
 
-  function handleRowDelete() {
+  function handleRowDelete(row) {
     axios
-      .post("/api/deleteRow")
+      .delete("/api/board/deleteRow", {
+        params: {
+          rowId: row.id,
+        },
+      })
+      .then((res) => {
+        setPostSuccess(!postSuccess);
+      })
+      .catch((e) => console.error(e));
+  }
+
+  function handleRowUpdate(row) {
+    const newRow = {
+      date: row.date,
+      income: parseInt(row.income.replace(/,/g, "")),
+      expense: parseInt(row.expense.replace(/,/g, "")),
+      how: row.how,
+      stringCategories: row.stringCategories,
+    };
+    axios
+      .put("/api/updateRow", newRow)
       .then((res) => {})
       .catch()
       .finally();
   }
+
+  function handleCheck(id, checked) {
+    setChecked(checked);
+
+    console.log("Row ID:", id, "Checked:", checked);
+  }
+
+  useEffect(() => {
+    console.log("useEffect working!");
+    axios
+      .get("/api/board/list")
+      .then((res) => {
+        setBoardList(res.data.boardList);
+        setRows(
+          res.data.boardList.map((board) => ({
+            ...board,
+            income: formatNumber(board.income.toString()),
+            expense: formatNumber(board.expense.toString()),
+          })),
+        );
+      })
+      .catch((e) => console.error("Error fetching board list:", e));
+  }, [postSuccess]);
 
   return (
     <Box>
@@ -159,22 +190,8 @@ function BoardList(props) {
             </Tr>
           </Thead>
           <Tbody>
-            {rows.map((row, index) => (
-              <Tr
-                key={index}
-                cursor={"pointer"}
-                _hover={{ bgColor: "gray.100 " }}
-              >
-                <Td>{index + 1}</Td>
-                <Td datatype={"date"}>{row.date}</Td>
-                <Td color="blue.500">{row.income}</Td>
-                <Td color="red.500">{row.expense}</Td>
-                <Td>{row.categories.join(", ")}</Td>
-                <Td>{row.how}</Td>
-                <Td> </Td>
-              </Tr>
-            ))}
-            <Tr cursor={"pointer"} _hover={{ bgColor: "gray.100 " }}>
+            {/* 입력 부분 */}
+            <Tr bgColor={""} _hover={{ bgColor: "gray.100 " }}>
               <Td>{rows.length + 1}</Td>
               <Td>
                 <Input
@@ -214,9 +231,12 @@ function BoardList(props) {
                     <MiniBox text={"여행"} />
                     <MiniBox text={"간식"} />
                     <MiniBox text={"식비"} />
+                  </Flex>
+                  <Flex>
                     <MiniBox text={"예시1"} />
                     <MiniBox text={"예시2"} />
                     <MiniBox text={"예시3"} />
+                    <MiniBox text={"예시4"} />
                   </Flex>
                 </Box>
               </Td>
@@ -228,16 +248,43 @@ function BoardList(props) {
                   <Button colorScheme={"blue"} m={"3px"} onClick={handleRowAdd}>
                     입력
                   </Button>
-                  <Button
-                    colorScheme={"red"}
-                    m={"3px"}
-                    onClick={handleRowDelete}
-                  >
-                    삭제
-                  </Button>
                 </Flex>
               </Td>
             </Tr>
+            {/* 출력 부분 */}
+            {rows.map((row, index) => (
+              <Tr key={index} _hover={{ bgColor: "gray.100 " }}>
+                <Td>
+                  <Checkbox
+                    border={"1px solid lightgray"}
+                    onChange={(e) => {
+                      handleCheck(e.target.checked, row.id);
+                    }}
+                  />
+                </Td>
+                <Td datatype={"date"}>{row.date}</Td>
+                <Td color="blue.500">{row.income}</Td>
+                <Td color="red.500">{row.expense}</Td>
+                <Td>{row.stringCategories}</Td>
+                <Td>{row.how}</Td>
+                <Td>
+                  <Button
+                    colorScheme={"green"}
+                    m={"3px"}
+                    onClick={() => handleRowUpdate(row)}
+                  >
+                    수정
+                  </Button>
+                  <Button
+                    colorScheme={"red"}
+                    m={"3px"}
+                    onClick={() => handleRowDelete(row)}
+                  >
+                    삭제
+                  </Button>
+                </Td>
+              </Tr>
+            ))}
           </Tbody>
         </Table>
       </Box>

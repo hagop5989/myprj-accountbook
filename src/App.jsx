@@ -7,8 +7,8 @@ import "./App.css";
 
 const theme = extendTheme({
   fonts: {
-    body: "WavvePADO-Regular, sans-serif",
-    heading: "WavvePADO-Regular, sans-serif",
+    body: "GmarketSansMedium, sans-serif",
+    heading: "GmarketSansMedium, sans-serif",
   },
 });
 
