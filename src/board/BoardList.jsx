@@ -18,64 +18,63 @@ import {
 import axios from "axios";
 
 function BoardList(props) {
-  const [incomeForm, setIncomeForm] = useState("");
-  const [expenseForm, setExpenseForm] = useState("");
-
-  const [date, setDate] = useState("");
-  const [income, setIncome] = useState(0);
-  const [expense, setExpense] = useState(0);
-  const [how, setHow] = useState("");
-  const [categories, setCategories] = useState([]);
-  const [rows, setRows] = useState([]);
-  const [boardList, setBoardList] = useState([]);
+  const [inputRow, setInputRow] = useState({
+    date: "",
+    income: "",
+    expense: "",
+    how: "",
+    categories: [],
+  });
+  const [dbRows, setDbRows] = useState([]);
   const [postSuccess, setPostSuccess] = useState(false);
-  const [checked, setChecked] = useState(false);
+  const [clickedList, setClickedList] = useState([]);
 
   const formatNumber = (num) => {
     return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
+  const handleInputChange = (field, value) => {
+    setInputRow((prevRow) => ({
+      ...prevRow,
+      [field]: value,
+    }));
+  };
+
   const handleIncomeChange = (event) => {
     const input = event.target.value;
-    setIncome(input);
     const plainNumber = input.replace(/,/g, "");
     if (!isNaN(plainNumber)) {
       const formattedNumber = formatNumber(plainNumber);
-      setIncomeForm(formattedNumber);
+      handleInputChange("income", formattedNumber);
     }
   };
 
   const handleExpenseChange = (event) => {
     const input = event.target.value;
-    setExpense(input);
     const plainNumber = input.replace(/,/g, "");
     if (!isNaN(plainNumber)) {
       const formattedNumber = formatNumber(plainNumber);
-      setExpenseForm(formattedNumber);
+      handleInputChange("expense", formattedNumber);
     }
   };
 
-  const handleCategoryChange = (text) => {
-    setCategories((prevCategories) => {
-      if (prevCategories.includes(text)) {
-        return prevCategories.filter((category) => category !== text);
+  const handleMiniBoxChange = (text) => {
+    setClickedList((prevList) => {
+      if (prevList.includes(text)) {
+        return prevList.filter((item) => item !== text);
       } else {
-        return [...prevCategories, text];
+        return [...prevList, text];
       }
     });
   };
 
-  const MiniBox = ({ text }) => {
-    const isSelected = categories.includes(text);
-
-    const changeBoxColor = () => {
-      handleCategoryChange(text);
-    };
+  const MiniBox = ({ text, clickedList, handleMiniBoxChange }) => {
+    const isSelected = clickedList.includes(text);
 
     return (
       <Box
         aria-valuetext={text}
-        onClick={changeBoxColor}
+        onClick={() => handleMiniBoxChange(text)}
         bgColor={isSelected ? "coral" : ""}
         boxSize={"50px"}
         border={"1px solid black"}
@@ -89,39 +88,61 @@ function BoardList(props) {
     );
   };
 
+  const MiniBoxGroup = ({ items, clickedList, handleMiniBoxChange }) => {
+    return (
+      <Flex>
+        {items.map((item) => (
+          <MiniBox
+            key={item}
+            text={item}
+            clickedList={clickedList}
+            handleMiniBoxChange={handleMiniBoxChange}
+          />
+        ))}
+      </Flex>
+    );
+  };
+
   function handleRowAdd() {
     const newRow = {
-      date,
-      income: parseInt(income.replace(/,/g, "")),
-      expense: parseInt(expense.replace(/,/g, "")),
-      how,
-      categories,
+      ...inputRow,
+      income: parseInt(inputRow.income.replace(/,/g, "")),
+      expense: parseInt(inputRow.expense.replace(/,/g, "")),
+      categories: clickedList,
     };
     axios
       .post("/api/board/addRow", newRow)
       .then((res) => {
-        setRows((prevRows) => [
-          ...prevRows,
-          {
-            ...newRow,
-            income: formatNumber(newRow.income.toString()),
-            expense: formatNumber(newRow.expense.toString()),
-          },
-        ]);
         setPostSuccess(!postSuccess);
       })
       .catch((e) => console.error({ e }))
       .finally(() => {
-        setDate("");
-        setIncome(0);
-        setIncomeForm("");
-        setExpense(0);
-        setExpenseForm("");
-        setHow("");
-        setCategories([]);
+        setInputRow({
+          date: "",
+          income: "",
+          expense: "",
+          how: "",
+          categories: [],
+        });
+        setClickedList([]);
       });
   }
 
+  function handleRowUpdate(row) {
+    const updatedRow = {
+      ...row,
+      income: parseInt(row.income.replace(/,/g, "")),
+      expense: parseInt(row.expense.replace(/,/g, "")),
+    };
+    axios
+      .put("/api/board/updateRow", updatedRow)
+      .then(() => {
+        setDbRows((prevRows) =>
+          prevRows.map((r) => (r.id === row.id ? updatedRow : r)),
+        );
+      })
+      .catch((e) => console.error(e));
+  }
   function handleRowDelete(row) {
     axios
       .delete("/api/board/deleteRow", {
@@ -129,40 +150,17 @@ function BoardList(props) {
           rowId: row.id,
         },
       })
-      .then((res) => {
+      .then(() => {
         setPostSuccess(!postSuccess);
       })
       .catch((e) => console.error(e));
   }
 
-  function handleRowUpdate(row) {
-    const newRow = {
-      date: row.date,
-      income: parseInt(row.income.replace(/,/g, "")),
-      expense: parseInt(row.expense.replace(/,/g, "")),
-      how: row.how,
-      stringCategories: row.stringCategories,
-    };
-    axios
-      .put("/api/updateRow", newRow)
-      .then((res) => {})
-      .catch()
-      .finally();
-  }
-
-  function handleCheck(id, checked) {
-    setChecked(checked);
-
-    console.log("Row ID:", id, "Checked:", checked);
-  }
-
   useEffect(() => {
-    console.log("useEffect working!");
     axios
       .get("/api/board/list")
       .then((res) => {
-        setBoardList(res.data.boardList);
-        setRows(
+        setDbRows(
           res.data.boardList.map((board) => ({
             ...board,
             income: formatNumber(board.income.toString()),
@@ -190,14 +188,13 @@ function BoardList(props) {
             </Tr>
           </Thead>
           <Tbody>
-            {/* 입력 부분 */}
             <Tr bgColor={""} _hover={{ bgColor: "gray.100 " }}>
-              <Td>{rows.length + 1}</Td>
+              <Td>{dbRows.length + 1}</Td>
               <Td>
                 <Input
                   type={"date"}
-                  defaultValue="2024-01-01"
-                  onChange={(e) => setDate(e.target.value)}
+                  value={inputRow.date}
+                  onChange={(e) => handleInputChange("date", e.target.value)}
                 />
               </Td>
               <Td>
@@ -206,7 +203,7 @@ function BoardList(props) {
                   <Input
                     type={"text"}
                     width={"150px"}
-                    value={incomeForm}
+                    value={inputRow.income}
                     color={"blue"}
                     onChange={handleIncomeChange}
                   />
@@ -218,30 +215,29 @@ function BoardList(props) {
                   <Input
                     type={"text"}
                     width={"150px"}
-                    value={expenseForm}
+                    value={inputRow.expense}
                     color={"red"}
                     onChange={handleExpenseChange}
                   />
                 </InputGroup>
               </Td>
               <Td>
-                <Box>
-                  <Flex>
-                    <MiniBox text={"급여"} />
-                    <MiniBox text={"여행"} />
-                    <MiniBox text={"간식"} />
-                    <MiniBox text={"식비"} />
-                  </Flex>
-                  <Flex>
-                    <MiniBox text={"예시1"} />
-                    <MiniBox text={"예시2"} />
-                    <MiniBox text={"예시3"} />
-                    <MiniBox text={"예시4"} />
-                  </Flex>
-                </Box>
+                <MiniBoxGroup
+                  items={["급여", "여행", "간식", "식비"]}
+                  clickedList={clickedList}
+                  handleMiniBoxChange={handleMiniBoxChange}
+                />
+                <MiniBoxGroup
+                  items={["예시1", "예시2", "예시3", "예시4"]}
+                  clickedList={clickedList}
+                  handleMiniBoxChange={handleMiniBoxChange}
+                />
               </Td>
               <Td>
-                <Textarea onChange={(e) => setHow(e.target.value)} />
+                <Textarea
+                  value={inputRow.how}
+                  onChange={(e) => handleInputChange("how", e.target.value)}
+                />
               </Td>
               <Td>
                 <Flex direction={"column"}>
@@ -251,39 +247,15 @@ function BoardList(props) {
                 </Flex>
               </Td>
             </Tr>
-            {/* 출력 부분 */}
-            {rows.map((row, index) => (
-              <Tr key={index} _hover={{ bgColor: "gray.100 " }}>
-                <Td>
-                  <Checkbox
-                    border={"1px solid lightgray"}
-                    onChange={(e) => {
-                      handleCheck(e.target.checked, row.id);
-                    }}
-                  />
-                </Td>
-                <Td datatype={"date"}>{row.date}</Td>
-                <Td color="blue.500">{row.income}</Td>
-                <Td color="red.500">{row.expense}</Td>
-                <Td>{row.stringCategories}</Td>
-                <Td>{row.how}</Td>
-                <Td>
-                  <Button
-                    colorScheme={"green"}
-                    m={"3px"}
-                    onClick={() => handleRowUpdate(row)}
-                  >
-                    수정
-                  </Button>
-                  <Button
-                    colorScheme={"red"}
-                    m={"3px"}
-                    onClick={() => handleRowDelete(row)}
-                  >
-                    삭제
-                  </Button>
-                </Td>
-              </Tr>
+            {dbRows.map((row) => (
+              <Row
+                key={row.id}
+                row={row}
+                formatNumber={formatNumber}
+                handleRowUpdate={handleRowUpdate}
+                handleRowDelete={handleRowDelete}
+                MiniBox={MiniBox}
+              />
             ))}
           </Tbody>
         </Table>
@@ -291,5 +263,147 @@ function BoardList(props) {
     </Box>
   );
 }
+
+const Row = ({
+  row,
+  formatNumber,
+  handleRowUpdate,
+  handleRowDelete,
+  MiniBox,
+}) => {
+  const [editRow, setEditRow] = useState({ ...row });
+
+  const handleEditChange = (field, value) => {
+    setEditRow((prevRow) => ({
+      ...prevRow,
+      [field]: value,
+    }));
+  };
+
+  const handleIncomeChange = (event) => {
+    const input = event.target.value;
+    const plainNumber = input.replace(/,/g, "");
+    if (!isNaN(plainNumber)) {
+      const formattedNumber = formatNumber(plainNumber);
+      handleEditChange("income", formattedNumber);
+    }
+  };
+
+  const handleExpenseChange = (event) => {
+    const input = event.target.value;
+    const plainNumber = input.replace(/,/g, "");
+    if (!isNaN(plainNumber)) {
+      const formattedNumber = formatNumber(plainNumber);
+      handleEditChange("expense", formattedNumber);
+    }
+  };
+
+  const handleCategoryChange = (text) => {
+    setEditRow((prevRow) => {
+      const newCategories = prevRow.categories.includes(text)
+        ? prevRow.categories.filter((category) => category !== text)
+        : [...prevRow.categories, text];
+      return {
+        ...prevRow,
+        categories: newCategories,
+      };
+    });
+  };
+
+  const MiniBoxGroup = ({ items, clickedList, handleMiniBoxChange }) => {
+    return (
+      <Flex>
+        {items.map((item) => (
+          <MiniBox
+            key={item}
+            text={item}
+            clickedList={clickedList}
+            handleMiniBoxChange={handleMiniBoxChange}
+          />
+        ))}
+      </Flex>
+    );
+  };
+
+  return (
+    <Tr bgColor={""} _hover={{ bgColor: "gray.100 " }}>
+      <Td>
+        <Checkbox
+          border={"1px solid lightgray"}
+          onChange={(e) => {
+            console.log("Row ID:", editRow.id, "Checked:", e.target.checked);
+          }}
+        />
+      </Td>
+      <Td>
+        <Input
+          type={"date"}
+          value={editRow.date}
+          onChange={(e) => handleEditChange("date", e.target.value)}
+        />
+      </Td>
+      <Td>
+        <InputGroup>
+          <InputLeftAddon color="blue" children="+" />
+          <Input
+            type={"text"}
+            width={"150px"}
+            color={"blue"}
+            value={editRow.income}
+            onChange={handleIncomeChange}
+          />
+        </InputGroup>
+      </Td>
+      <Td>
+        <InputGroup>
+          <InputLeftAddon color={"red"} children="-" />
+          <Input
+            type={"text"}
+            width={"150px"}
+            color={"red"}
+            value={editRow.expense}
+            onChange={handleExpenseChange}
+          />
+        </InputGroup>
+      </Td>
+      <Td>
+        <MiniBoxGroup
+          items={["급여", "여행", "간식", "식비"]}
+          clickedList={editRow.categories}
+          handleMiniBoxChange={handleCategoryChange}
+        />
+        <MiniBoxGroup
+          items={["예시1", "예시2", "예시3", "예시4"]}
+          clickedList={editRow.categories}
+          handleMiniBoxChange={handleCategoryChange}
+        />
+      </Td>
+      <Td>
+        <Textarea
+          value={editRow.how}
+          onChange={(e) => handleEditChange("how", e.target.value)}
+        />
+      </Td>
+      <Td>
+        <Flex direction={"column"}>
+          <Button
+            colorScheme={"blue"}
+            m={"3px"}
+            onClick={() => handleRowUpdate(editRow)}
+          >
+            수정
+          </Button>
+          <Button
+            colorScheme={"red"}
+            m={"3px"}
+            onClick={() => handleRowDelete(row)}
+          >
+            삭제
+          </Button>
+        </Flex>
+      </Td>
+    </Tr>
+  );
+};
 
 export default BoardList;
