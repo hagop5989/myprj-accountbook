@@ -14,6 +14,7 @@ import {
   Th,
   Thead,
   Tr,
+  useToast,
 } from "@chakra-ui/react";
 import axios from "axios";
 
@@ -28,81 +29,10 @@ function BoardList(props) {
   const [dbRows, setDbRows] = useState([]);
   const [postSuccess, setPostSuccess] = useState(false);
   const [clickedList, setClickedList] = useState([]);
+  const [rowSum, setRowSum] = useState(0);
+  const toast = useToast();
 
-  const formatNumber = (num) => {
-    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  };
-
-  const handleInputChange = (field, value) => {
-    setInputRow((prevRow) => ({
-      ...prevRow,
-      [field]: value,
-    }));
-  };
-
-  const handleIncomeChange = (event) => {
-    const input = event.target.value;
-    const plainNumber = input.replace(/,/g, "");
-    if (!isNaN(plainNumber)) {
-      const formattedNumber = formatNumber(plainNumber);
-      handleInputChange("income", formattedNumber);
-    }
-  };
-
-  const handleExpenseChange = (event) => {
-    const input = event.target.value;
-    const plainNumber = input.replace(/,/g, "");
-    if (!isNaN(plainNumber)) {
-      const formattedNumber = formatNumber(plainNumber);
-      handleInputChange("expense", formattedNumber);
-    }
-  };
-
-  const handleMiniBoxChange = (text) => {
-    setClickedList((prevList) => {
-      if (prevList.includes(text)) {
-        return prevList.filter((item) => item !== text);
-      } else {
-        return [...prevList, text];
-      }
-    });
-  };
-
-  const MiniBox = ({ text, clickedList, handleMiniBoxChange }) => {
-    const isSelected = clickedList.includes(text);
-
-    return (
-      <Box
-        aria-valuetext={text}
-        onClick={() => handleMiniBoxChange(text)}
-        bgColor={isSelected ? "coral" : ""}
-        boxSize={"50px"}
-        border={"1px solid black"}
-        borderRadius={"5px"}
-        textAlign="center"
-        lineHeight={"50px"}
-        margin={"2px"}
-      >
-        {text}
-      </Box>
-    );
-  };
-
-  const MiniBoxGroup = ({ items, clickedList, handleMiniBoxChange }) => {
-    return (
-      <Flex>
-        {items.map((item) => (
-          <MiniBox
-            key={item}
-            text={item}
-            clickedList={clickedList}
-            handleMiniBoxChange={handleMiniBoxChange}
-          />
-        ))}
-      </Flex>
-    );
-  };
-
+  // CRUD - R은 useEffect 부분에
   function handleRowAdd() {
     const newRow = {
       ...inputRow,
@@ -114,6 +44,11 @@ function BoardList(props) {
       .post("/api/board/addRow", newRow)
       .then((res) => {
         setPostSuccess(!postSuccess);
+        toast({
+          description: "입력 완료 되었습니다!",
+          status: "success",
+          position: "top",
+        });
       })
       .catch((e) => console.error({ e }))
       .finally(() => {
@@ -140,6 +75,11 @@ function BoardList(props) {
         setDbRows((prevRows) =>
           prevRows.map((r) => (r.id === row.id ? updatedRow : r)),
         );
+        toast({
+          description: "수정 완료 되었습니다!",
+          status: "info",
+          position: "top",
+        });
       })
       .catch((e) => console.error(e));
   }
@@ -152,10 +92,95 @@ function BoardList(props) {
       })
       .then(() => {
         setPostSuccess(!postSuccess);
+        toast({
+          description: "삭제 완료 되었습니다!",
+          status: "error",
+          position: "top",
+        });
       })
       .catch((e) => console.error(e));
   }
+  // CRUD - R은 useEffect 부분에
 
+  // 포맷팅 관련
+  const formatNumber = (num) => {
+    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  };
+
+  const handleInputChange = (field, value) => {
+    setInputRow((prevRow) => ({
+      ...prevRow,
+      [field]: value,
+    }));
+  };
+
+  const handleIncomeChange = (event) => {
+    const inputIncome = event.target.value;
+    const plainNumber = inputIncome.replace(/,/g, "");
+    if (!isNaN(plainNumber)) {
+      const formattedNumber = formatNumber(plainNumber);
+      handleInputChange("income", formattedNumber);
+    }
+  };
+
+  const handleExpenseChange = (event) => {
+    const inputExpense = event.target.value;
+    const plainNumber = inputExpense.replace(/,/g, "");
+    if (!isNaN(plainNumber)) {
+      const formattedNumber = formatNumber(plainNumber);
+      handleInputChange("expense", formattedNumber);
+    }
+  };
+  // 포맷팅 관련
+
+  // MiniBox 관련
+  const handleMiniBoxChange = (text) => {
+    setClickedList((prevList) => {
+      if (prevList.includes(text)) {
+        return prevList.filter((item) => item !== text);
+      } else {
+        return [...prevList, text];
+      }
+    });
+  };
+
+  const MiniBox = ({ text, clickedList, handleMiniBoxChange }) => {
+    const isSelected = clickedList.includes(text);
+
+    return (
+      <Box
+        aria-valuetext={text}
+        onClick={() => handleMiniBoxChange(text)}
+        bgColor={isSelected ? "blue.100 " : ""}
+        boxSize={"50px"}
+        border={"1px solid black"}
+        borderRadius={"5px"}
+        textAlign="center"
+        lineHeight={"50px"}
+        margin={"2px"}
+      >
+        {text}
+      </Box>
+    );
+  };
+
+  const MiniBoxGroup = ({ items, clickedList, handleMiniBoxChange }) => {
+    return (
+      <Flex>
+        {items.map((item) => (
+          <MiniBox
+            key={item}
+            text={item}
+            clickedList={clickedList}
+            handleMiniBoxChange={handleMiniBoxChange}
+          />
+        ))}
+      </Flex>
+    );
+  };
+  // MiniBox 관련
+
+  // CRUD 중 R(리스트)
   useEffect(() => {
     axios
       .get("/api/board/list")
@@ -171,17 +196,32 @@ function BoardList(props) {
       .catch((e) => console.error("Error fetching board list:", e));
   }, [postSuccess]);
 
+  useEffect(() => {
+    const income = parseInt(inputRow.income.replace(/,/g, ""), 10) || 0;
+    const expense = parseInt(inputRow.expense.replace(/,/g, ""), 10) || 0;
+    const sum = income - expense;
+    setRowSum(sum.toLocaleString());
+  }, [inputRow]);
+  // CRUD 중 R(리스트)
+
+  function inputRowSum() {}
   return (
     <Box>
-      <Box>회원목록</Box>
+      <Button m={2} fontWeight={"medium"} colorScheme={"blue"}>
+        일괄 저장
+      </Button>
+      <Button fontWeight={"medium"} colorScheme={"red"}>
+        일괄 삭제
+      </Button>
       <Box>
         <Table>
           <Thead>
             <Tr bgColor={"gray.50"}>
-              <Th fontSize={"1rem"}>#</Th>
+              <Th fontSize={"1rem"}>선택</Th>
               <Th fontSize={"1rem"}>날짜</Th>
               <Th fontSize={"1rem"}>수입</Th>
               <Th fontSize={"1rem"}>지출</Th>
+              <Th fontSize={"1rem"}>합계</Th>
               <Th fontSize={"1rem"}>카테고리</Th>
               <Th fontSize={"1rem"}>방법</Th>
               <Th fontSize={"1rem"}>입력</Th>
@@ -189,7 +229,7 @@ function BoardList(props) {
           </Thead>
           <Tbody>
             <Tr bgColor={""} _hover={{ bgColor: "gray.100 " }}>
-              <Td>{dbRows.length + 1}</Td>
+              <Td>입력</Td>
               <Td>
                 <Input
                   type={"date"}
@@ -221,14 +261,10 @@ function BoardList(props) {
                   />
                 </InputGroup>
               </Td>
+              <Td>{rowSum}</Td>
               <Td>
                 <MiniBoxGroup
-                  items={["급여", "여행", "간식", "식비"]}
-                  clickedList={clickedList}
-                  handleMiniBoxChange={handleMiniBoxChange}
-                />
-                <MiniBoxGroup
-                  items={["예시1", "예시2", "예시3", "예시4"]}
+                  items={["급여", "여행", "간식", "식비", "예시1", "예시2"]}
                   clickedList={clickedList}
                   handleMiniBoxChange={handleMiniBoxChange}
                 />
@@ -255,6 +291,7 @@ function BoardList(props) {
                 handleRowUpdate={handleRowUpdate}
                 handleRowDelete={handleRowDelete}
                 MiniBox={MiniBox}
+                MiniBoxGroup={MiniBoxGroup}
               />
             ))}
           </Tbody>
@@ -269,7 +306,7 @@ const Row = ({
   formatNumber,
   handleRowUpdate,
   handleRowDelete,
-  MiniBox,
+  MiniBoxGroup,
 }) => {
   const [editRow, setEditRow] = useState({ ...row });
 
@@ -310,30 +347,10 @@ const Row = ({
     });
   };
 
-  const MiniBoxGroup = ({ items, clickedList, handleMiniBoxChange }) => {
-    return (
-      <Flex>
-        {items.map((item) => (
-          <MiniBox
-            key={item}
-            text={item}
-            clickedList={clickedList}
-            handleMiniBoxChange={handleMiniBoxChange}
-          />
-        ))}
-      </Flex>
-    );
-  };
-
   return (
     <Tr bgColor={""} _hover={{ bgColor: "gray.100 " }}>
       <Td>
-        <Checkbox
-          border={"1px solid lightgray"}
-          onChange={(e) => {
-            console.log("Row ID:", editRow.id, "Checked:", e.target.checked);
-          }}
-        />
+        <Checkbox border={"1px solid lightgray"} onChange={(e) => {}} />
       </Td>
       <Td>
         <Input
@@ -366,14 +383,10 @@ const Row = ({
           />
         </InputGroup>
       </Td>
+      <Td>합계가 들어갈 예정.</Td>
       <Td>
         <MiniBoxGroup
-          items={["급여", "여행", "간식", "식비"]}
-          clickedList={editRow.categories}
-          handleMiniBoxChange={handleCategoryChange}
-        />
-        <MiniBoxGroup
-          items={["예시1", "예시2", "예시3", "예시4"]}
+          items={["급여", "여행", "간식", "식비", "예시1", "예시2"]}
           clickedList={editRow.categories}
           handleMiniBoxChange={handleCategoryChange}
         />
