@@ -4,6 +4,7 @@ import { Home } from "./home/Home.jsx";
 import { Page1 } from "./Page1.jsx";
 import BoardList from "./board/BoardList.jsx";
 import "./App.css";
+import Analysis from "./board/Analysis.jsx";
 
 const theme = extendTheme({
   fonts: {
@@ -20,6 +21,7 @@ const router = createBrowserRouter([
       { index: true, element: <BoardList /> },
       { path: "page1", element: <Page1 /> },
       { path: "page", element: <Page1 /> },
+      { path: "analysis", element: <Analysis /> },
     ],
   },
 ]);

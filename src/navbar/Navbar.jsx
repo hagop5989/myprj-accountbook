@@ -5,7 +5,7 @@ import { faHouse, faUser } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
 function Navbar(props) {
-  let navigate = useNavigate();
+  const navigate = useNavigate();
   const navCss = {
     fontSize: "1.5rem",
     cursor: "pointer",
@@ -20,9 +20,8 @@ function Navbar(props) {
           <FontAwesomeIcon icon={faHouse} />
         </Box>
 
-        <Box {...navCss} cursor={"default"}>
-          {" "}
-          가계부 작성{" "}
+        <Box {...navCss} cursor={"default"} onClick={() => navigate("/")}>
+          가계부 작성
         </Box>
 
         <Spacer />
@@ -39,7 +38,9 @@ function Navbar(props) {
           정보설정
         </Box>
 
-        <Box {...navCss}>내역보기</Box>
+        <Box onClick={() => navigate("/analysis")} {...navCss}>
+          통계보기
+        </Box>
 
         <Box {...navCss}>회원가입</Box>
 

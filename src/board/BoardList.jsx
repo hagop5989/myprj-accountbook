@@ -21,29 +21,45 @@ import axios from "axios";
 function BoardList(props) {
   const [inputRow, setInputRow] = useState({
     date: "",
-    income: "",
-    expense: "",
+    income: 0,
+    expense: 0,
     how: "",
     categories: [],
+    rowSum: 0,
   });
   const [dbRows, setDbRows] = useState([]);
-  const [postSuccess, setPostSuccess] = useState(false);
   const [clickedList, setClickedList] = useState([]);
-  const [rowSum, setRowSum] = useState(0);
   const toast = useToast();
 
-  // CRUD - R은 useEffect 부분에
-  function handleRowAdd() {
+  useEffect(() => {
+    fetchBoardList();
+  }, []);
+
+  const fetchBoardList = () => {
+    axios
+      .get("/api/board/list")
+      .then((res) => {
+        setDbRows(
+          res.data.boardList.map((board) => ({
+            ...board,
+            income: Number(board.income),
+            expense: Number(board.expense),
+          })),
+        );
+      })
+      .catch((e) => console.error("Error fetching board list:", e));
+  };
+
+  const handleRowAdd = () => {
     const newRow = {
       ...inputRow,
-      income: parseInt(inputRow.income.replace(/,/g, "")),
-      expense: parseInt(inputRow.expense.replace(/,/g, "")),
       categories: clickedList,
+      rowSum: inputRow.income - inputRow.expense,
     };
     axios
       .post("/api/board/addRow", newRow)
       .then((res) => {
-        setPostSuccess(!postSuccess);
+        fetchBoardList();
         toast({
           description: "입력 완료 되었습니다!",
           status: "success",
@@ -54,27 +70,21 @@ function BoardList(props) {
       .finally(() => {
         setInputRow({
           date: "",
-          income: "",
-          expense: "",
+          income: 0,
+          expense: 0,
           how: "",
           categories: [],
         });
         setClickedList([]);
       });
-  }
+  };
 
-  function handleRowUpdate(row) {
-    const updatedRow = {
-      ...row,
-      income: parseInt(row.income.replace(/,/g, "")),
-      expense: parseInt(row.expense.replace(/,/g, "")),
-    };
+  const handleRowUpdate = (row) => {
+    const updatedRow = { ...row };
     axios
       .put("/api/board/updateRow", updatedRow)
       .then(() => {
-        setDbRows((prevRows) =>
-          prevRows.map((r) => (r.id === row.id ? updatedRow : r)),
-        );
+        fetchBoardList();
         toast({
           description: "수정 완료 되었습니다!",
           status: "info",
@@ -82,16 +92,15 @@ function BoardList(props) {
         });
       })
       .catch((e) => console.error(e));
-  }
-  function handleRowDelete(row) {
+  };
+
+  const handleRowDelete = (row) => {
     axios
       .delete("/api/board/deleteRow", {
-        params: {
-          rowId: row.id,
-        },
+        params: { rowId: row.id },
       })
       .then(() => {
-        setPostSuccess(!postSuccess);
+        fetchBoardList();
         toast({
           description: "삭제 완료 되었습니다!",
           status: "error",
@@ -99,12 +108,6 @@ function BoardList(props) {
         });
       })
       .catch((e) => console.error(e));
-  }
-  // CRUD - R은 useEffect 부분에
-
-  // 포맷팅 관련
-  const formatNumber = (num) => {
-    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   };
 
   const handleInputChange = (field, value) => {
@@ -115,25 +118,15 @@ function BoardList(props) {
   };
 
   const handleIncomeChange = (event) => {
-    const inputIncome = event.target.value;
-    const plainNumber = inputIncome.replace(/,/g, "");
-    if (!isNaN(plainNumber)) {
-      const formattedNumber = formatNumber(plainNumber);
-      handleInputChange("income", formattedNumber);
-    }
+    const value = parseFloat(event.target.value.replace(/,/g, "")) || 0;
+    handleInputChange("income", value);
   };
 
   const handleExpenseChange = (event) => {
-    const inputExpense = event.target.value;
-    const plainNumber = inputExpense.replace(/,/g, "");
-    if (!isNaN(plainNumber)) {
-      const formattedNumber = formatNumber(plainNumber);
-      handleInputChange("expense", formattedNumber);
-    }
+    const value = parseFloat(event.target.value.replace(/,/g, "")) || 0;
+    handleInputChange("expense", value);
   };
-  // 포맷팅 관련
 
-  // MiniBox 관련
   const handleMiniBoxChange = (text) => {
     setClickedList((prevList) => {
       if (prevList.includes(text)) {
@@ -178,33 +171,7 @@ function BoardList(props) {
       </Flex>
     );
   };
-  // MiniBox 관련
 
-  // CRUD 중 R(리스트)
-  useEffect(() => {
-    axios
-      .get("/api/board/list")
-      .then((res) => {
-        setDbRows(
-          res.data.boardList.map((board) => ({
-            ...board,
-            income: formatNumber(board.income.toString()),
-            expense: formatNumber(board.expense.toString()),
-          })),
-        );
-      })
-      .catch((e) => console.error("Error fetching board list:", e));
-  }, [postSuccess]);
-
-  useEffect(() => {
-    const income = parseInt(inputRow.income.replace(/,/g, ""), 10) || 0;
-    const expense = parseInt(inputRow.expense.replace(/,/g, ""), 10) || 0;
-    const sum = income - expense;
-    setRowSum(sum.toLocaleString());
-  }, [inputRow]);
-  // CRUD 중 R(리스트)
-
-  function inputRowSum() {}
   return (
     <Box>
       <Button m={2} fontWeight={"medium"} colorScheme={"blue"}>
@@ -243,7 +210,7 @@ function BoardList(props) {
                   <Input
                     type={"text"}
                     width={"150px"}
-                    value={inputRow.income}
+                    value={inputRow.income.toLocaleString()}
                     color={"blue"}
                     onChange={handleIncomeChange}
                   />
@@ -255,13 +222,13 @@ function BoardList(props) {
                   <Input
                     type={"text"}
                     width={"150px"}
-                    value={inputRow.expense}
+                    value={inputRow.expense.toLocaleString()}
                     color={"red"}
                     onChange={handleExpenseChange}
                   />
                 </InputGroup>
               </Td>
-              <Td>{rowSum}</Td>
+              <Td>{(inputRow.income - inputRow.expense).toLocaleString()}</Td>
               <Td>
                 <MiniBoxGroup
                   items={["급여", "여행", "간식", "식비", "예시1", "예시2"]}
@@ -287,10 +254,8 @@ function BoardList(props) {
               <Row
                 key={row.id}
                 row={row}
-                formatNumber={formatNumber}
                 handleRowUpdate={handleRowUpdate}
                 handleRowDelete={handleRowDelete}
-                MiniBox={MiniBox}
                 MiniBoxGroup={MiniBoxGroup}
               />
             ))}
@@ -301,13 +266,7 @@ function BoardList(props) {
   );
 }
 
-const Row = ({
-  row,
-  formatNumber,
-  handleRowUpdate,
-  handleRowDelete,
-  MiniBoxGroup,
-}) => {
+const Row = ({ row, handleRowUpdate, handleRowDelete, MiniBoxGroup }) => {
   const [editRow, setEditRow] = useState({ ...row });
 
   const handleEditChange = (field, value) => {
@@ -318,21 +277,13 @@ const Row = ({
   };
 
   const handleIncomeChange = (event) => {
-    const input = event.target.value;
-    const plainNumber = input.replace(/,/g, "");
-    if (!isNaN(plainNumber)) {
-      const formattedNumber = formatNumber(plainNumber);
-      handleEditChange("income", formattedNumber);
-    }
+    const value = parseFloat(event.target.value.replace(/,/g, "")) || 0;
+    handleEditChange("income", value);
   };
 
   const handleExpenseChange = (event) => {
-    const input = event.target.value;
-    const plainNumber = input.replace(/,/g, "");
-    if (!isNaN(plainNumber)) {
-      const formattedNumber = formatNumber(plainNumber);
-      handleEditChange("expense", formattedNumber);
-    }
+    const value = parseFloat(event.target.value.replace(/,/g, "")) || 0;
+    handleEditChange("expense", value);
   };
 
   const handleCategoryChange = (text) => {
@@ -366,7 +317,7 @@ const Row = ({
             type={"text"}
             width={"150px"}
             color={"blue"}
-            value={editRow.income}
+            value={editRow.income.toLocaleString()}
             onChange={handleIncomeChange}
           />
         </InputGroup>
@@ -378,12 +329,12 @@ const Row = ({
             type={"text"}
             width={"150px"}
             color={"red"}
-            value={editRow.expense}
+            value={editRow.expense.toLocaleString()}
             onChange={handleExpenseChange}
           />
         </InputGroup>
       </Td>
-      <Td>합계가 들어갈 예정.</Td>
+      <Td>{Number(editRow.income - editRow.expense).toLocaleString()}</Td>
       <Td>
         <MiniBoxGroup
           items={["급여", "여행", "간식", "식비", "예시1", "예시2"]}
