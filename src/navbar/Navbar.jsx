@@ -24,7 +24,7 @@ function Navbar(props) {
           가계부 작성
         </Box>
 
-        <Spacer />
+        <Spacer w={900} />
         <Box {...navCss}>
           <FontAwesomeIcon icon={faUser} />
         </Box>
