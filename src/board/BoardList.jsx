@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -16,9 +16,13 @@ import {
   Tr,
   useToast,
 } from "@chakra-ui/react";
-import axios from "axios";
+import { customAxios as axios } from "../customInstance.jsx";
+import { LoginContext } from "../LoginProvider.jsx";
+import { useNavigate } from "react-router-dom";
 
 function BoardList(props) {
+  const account = useContext(LoginContext);
+  const navigate = useNavigate();
   const [inputRow, setInputRow] = useState({
     date: "",
     income: 0,
@@ -32,6 +36,9 @@ function BoardList(props) {
   const toast = useToast();
 
   useEffect(() => {
+    if (account == null || !account.isLoggedIn()) {
+      navigate("/login");
+    }
     fetchBoardList();
   }, []);
 

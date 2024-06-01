@@ -4,8 +4,8 @@ import { Outlet } from "react-router-dom";
 
 export function Home() {
   return (
-    <Box mx={100} my={5}>
-      <Flex bgColor="gray.200">
+    <Box mx={100} my={4}>
+      <Flex border={"1px solid gray"} borderRadius={"15px"}>
         <Navbar />
       </Flex>
       <Box mt={2}>

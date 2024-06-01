@@ -13,7 +13,7 @@ import {
   Tr,
   useToast,
 } from "@chakra-ui/react";
-import axios from "axios";
+import { customAxios as axios } from "../customInstance.jsx";
 import {
   Bar,
   CartesianGrid,
