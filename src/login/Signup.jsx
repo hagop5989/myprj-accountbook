@@ -14,6 +14,7 @@ import {
 } from "@chakra-ui/react";
 import { useState } from "react";
 import { customAxios as axios } from "../customInstance.jsx";
+import { useNavigate } from "react-router-dom";
 
 export function Signup() {
   const [newMember, setNewMember] = useState({
@@ -26,6 +27,7 @@ export function Signup() {
   const [emailCheck, setEmailCheck] = useState(false);
   const [nickNameCheck, setNickNameCheck] = useState(false);
   const toast = useToast();
+  const navigate = useNavigate();
 
   function mytoast(text, status) {
     toast({
@@ -93,6 +95,7 @@ export function Signup() {
           email: "",
         });
         setPasswordCheck("");
+        navigate("/");
       });
   }
 

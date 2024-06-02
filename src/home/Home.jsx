@@ -8,7 +8,7 @@ export function Home() {
       <Flex border={"2px solid gray"} borderRadius={"15px"}>
         <Navbar />
       </Flex>
-      <Box mt={2}>
+      <Box mt={5}>
         <Outlet />
       </Box>
     </Box>

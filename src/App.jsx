@@ -40,7 +40,7 @@ const lightTheme = {
 
 const darkTheme = {
   body: "#112",
-  text: "#FFF",
+  text: "#cbcbcb",
 };
 
 const themes = {

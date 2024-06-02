@@ -25,7 +25,6 @@ import { useNavigate } from "react-router-dom";
 import { MyModalBody } from "./MyModalBody.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments } from "@fortawesome/free-solid-svg-icons";
-import { mytoast } from "../App.jsx";
 
 function BoardList(props) {
   const account = useContext(LoginContext);
@@ -44,13 +43,11 @@ function BoardList(props) {
   const toast = useToast();
 
   useEffect(() => {
-    console.log(account == null);
-    console.log(!account.isLoggedIn());
-    if (!account.isLoggedIn()) {
+    /*if (!account.isLoggedIn()) {
       mytoast(toast, "로그인 필요!!", "error");
       account.logout();
       navigate("/login");
-    }
+    }*/
     fetchBoardList();
   }, []);
 
@@ -165,7 +162,7 @@ function BoardList(props) {
         onClick={() => handleMiniBoxChange(text)}
         bgColor={isSelected ? "blue.100 " : ""}
         boxSize={"50px"}
-        border={"1px solid gray"}
+        border={"2px solid gray"}
         borderRadius={"5px"}
         textAlign="center"
         lineHeight={"50px"}
@@ -340,7 +337,7 @@ const Row = ({
 
   return (
     <Tr
-      bgColor={row.id === maxId ? "gray.50" : ""}
+      bgColor={row.id === maxId ? "rgba(70,50,17,0.06)" : ""}
       _hover={{ bgColor: "gray.50 " }}
     >
       <Td fontSize={"1.3rem"}>
