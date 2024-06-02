@@ -27,7 +27,11 @@ export function Login() {
         mytoast("로그인 되었습니다", "success");
         navigate("/");
       })
-      .catch(() => {})
+      .catch((e) => {
+        if (e.response.status === 403) {
+          mytoast(`로그인 실패 !\n 입력 값을 확인 해주세요.`, "error");
+        }
+      })
       .finally(() => {});
   }
 
@@ -47,7 +51,7 @@ export function Login() {
   const toast = useToast();
   function mytoast(text, status) {
     toast({
-      description: text,
+      description: <Box whiteSpace="pre-line">{text}</Box>,
       status: status,
       position: "top",
       duration: "700",

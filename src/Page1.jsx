@@ -1,5 +1,9 @@
-import { Box, Flex } from "@chakra-ui/react";
+import { Box, Flex, Heading, useToast } from "@chakra-ui/react";
 import * as PropTypes from "prop-types";
+import { useContext } from "react";
+import { LoginContext } from "./LoginProvider.jsx";
+import { useNavigate } from "react-router-dom";
+import { mytoast } from "./App.jsx";
 
 function MyBox1({ text }) {
   return (
@@ -20,11 +24,20 @@ function MyBox1({ text }) {
 MyBox1.propTypes = { children: PropTypes.node };
 
 export function Page1() {
+  const account = useContext(LoginContext);
+  const navigate = useNavigate();
+  const toast = useToast();
+
+  if (!account.isLoggedIn()) {
+    mytoast(toast, "로그인 필요!!", "error");
+    account.logout();
+    navigate("/login");
+  }
   return (
-    <Flex height={"100vh"} alignItems="center" justifyContent={"center"}>
+    <Flex height={"80vh"} alignItems="center" justifyContent={"center"}>
       <Box>
+        <Heading>준비중입니다</Heading>
         <Box>
-          등록
           <Flex>
             <MyBox1 text={"내 계좌"}></MyBox1>
             <MyBox1 text={"내 카드"}></MyBox1>
