@@ -16,7 +16,7 @@ function Navbar(props) {
   const navCss = {
     fontSize: "1.5rem",
     cursor: "pointer",
-    _hover: { bgColor: "gray.200" },
+    _hover: { bgColor: "gray.100" },
     padding: "3px",
     borderRadius: "md",
   };
@@ -39,11 +39,14 @@ function Navbar(props) {
               가계부 작성
             </Box>
             <Spacer w={1000} />
-            <Box {...navCss}>{account.nickName}</Box>
-            <Box {...navCss}>
+            <Box {...navCss} cursor={"default"}>
+              {account.nickName}
+              {"   "}
               <FontAwesomeIcon icon={faUser} />
             </Box>
-
+            <Box onClick={() => navigate("/analysis")} {...navCss}>
+              통계보기
+            </Box>
             <Box
               ml={1}
               onClick={() => {
@@ -51,22 +54,20 @@ function Navbar(props) {
               }}
               {...navCss}
             >
-              정보설정
-            </Box>
-
-            <Box onClick={() => navigate("/analysis")} {...navCss}>
-              통계보기
+              가계부설정
             </Box>
           </Flex>
         </VStack>
         <VStack display={!showBoxes ? "block" : "none"}>
-          <Box onClick={() => navigate("/signup")} {...navCss}>
-            회원가입
-          </Box>
+          <Flex gap={5}>
+            <Box onClick={() => navigate("/signup")} {...navCss}>
+              회원가입
+            </Box>
 
-          <Box onClick={() => navigate("/logIn")} {...navCss}>
-            로그인
-          </Box>
+            <Box onClick={() => navigate("/logIn")} {...navCss}>
+              로그인
+            </Box>
+          </Flex>
         </VStack>
 
         <VStack display={showBoxes ? "block" : "none"}>

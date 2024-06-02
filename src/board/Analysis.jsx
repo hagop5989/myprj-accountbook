@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
@@ -28,13 +28,25 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { LoginContext } from "../LoginProvider.jsx";
+import { useNavigate } from "react-router-dom";
+import { mytoast } from "../App.jsx";
 
 function Analysis(props) {
   const [dbRows, setDbRows] = useState([]);
   const [postSuccess, setPostSuccess] = useState(false);
   const [showPieChart, setShowPieChart] = useState(true);
   const [selectedMonth, setSelectedMonth] = useState("");
+
+  const account = useContext(LoginContext);
+  const navigate = useNavigate();
   const toast = useToast();
+
+  if (!account.isLoggedIn()) {
+    mytoast(toast, "로그인 필요!!", "error");
+    account.logout();
+    navigate("/login");
+  }
 
   useEffect(() => {
     axios
@@ -184,7 +196,7 @@ function Analysis(props) {
         ))}
       </Select>
       <Flex>
-        <Box width="50%">
+        <Box width="50%" bgColor={"gray.50"} borderRadius={"15px"}>
           {showPieChart ? (
             <ResponsiveContainer width="100%" height={400}>
               <PieChart>

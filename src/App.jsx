@@ -1,4 +1,4 @@
-import { Button, ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { Box, Button, ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Page1 } from "./Page1.jsx";
 import BoardList from "./board/BoardList.jsx";
@@ -12,6 +12,10 @@ import styled from "@emotion/styled";
 import { LoginProvider } from "./LoginProvider.jsx";
 import axios from "axios";
 import { Home } from "./home/Home.jsx";
+
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMoon } from "@fortawesome/free-solid-svg-icons/faMoon";
+import { faSun } from "@fortawesome/free-solid-svg-icons/faSun"; // axios interceptor 설정
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -35,7 +39,7 @@ const lightTheme = {
 };
 
 const darkTheme = {
-  body: "#000",
+  body: "#112",
   text: "#FFF",
 };
 
@@ -57,7 +61,6 @@ const router = createBrowserRouter([
     children: [
       { index: true, element: <BoardList /> },
       { path: "page1", element: <Page1 /> },
-      { path: "page", element: <Page1 /> },
       { path: "analysis", element: <Analysis /> },
       { path: "signup", element: <Signup /> },
       { path: "logIn", element: <Login /> },
@@ -77,8 +80,16 @@ function App() {
       <ChakraProvider theme={chakraTheme}>
         <EmotionThemeProvider theme={themes[themeMode]}>
           <Wrapper>
-            <Button bgColor={"gray.100"} onClick={toggleTheme}>
-              화면모드 전환
+            <Button
+              bgColor={"gray.100"}
+              onClick={toggleTheme}
+              w={50}
+              m={3}
+              p={4}
+              fontSize={"1.5rem"}
+            >
+              {themeMode == "light" && <FontAwesomeIcon icon={faMoon} />}
+              {themeMode != "light" && <FontAwesomeIcon icon={faSun} />}
             </Button>
             <RouterProvider router={router} />
           </Wrapper>
@@ -89,3 +100,12 @@ function App() {
 }
 
 export default App;
+
+export function mytoast(toast, text, status) {
+  toast({
+    description: <Box whiteSpace="pre-line">{text}</Box>,
+    status: status,
+    position: "top",
+    duration: "700",
+  });
+}

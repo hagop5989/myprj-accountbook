@@ -2,11 +2,13 @@ import React, { useContext, useEffect, useState } from "react";
 import {
   Box,
   Button,
-  Checkbox,
   Flex,
   Input,
   InputGroup,
   InputLeftAddon,
+  Modal,
+  ModalContent,
+  ModalOverlay,
   Table,
   Tbody,
   Td,
@@ -14,15 +16,21 @@ import {
   Th,
   Thead,
   Tr,
+  useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import { customAxios as axios } from "../customInstance.jsx";
 import { LoginContext } from "../LoginProvider.jsx";
 import { useNavigate } from "react-router-dom";
+import { MyModalBody } from "./MyModalBody.jsx";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faComments } from "@fortawesome/free-solid-svg-icons";
+import { mytoast } from "../App.jsx";
 
 function BoardList(props) {
   const account = useContext(LoginContext);
   const navigate = useNavigate();
+
   const [inputRow, setInputRow] = useState({
     date: "",
     income: 0,
@@ -36,7 +44,11 @@ function BoardList(props) {
   const toast = useToast();
 
   useEffect(() => {
-    if (account == null || !account.isLoggedIn()) {
+    console.log(account == null);
+    console.log(!account.isLoggedIn());
+    if (!account.isLoggedIn()) {
+      mytoast(toast, "로그인 필요!!", "error");
+      account.logout();
       navigate("/login");
     }
     fetchBoardList();
@@ -153,10 +165,11 @@ function BoardList(props) {
         onClick={() => handleMiniBoxChange(text)}
         bgColor={isSelected ? "blue.100 " : ""}
         boxSize={"50px"}
-        border={"1px solid black"}
+        border={"1px solid gray"}
         borderRadius={"5px"}
         textAlign="center"
         lineHeight={"50px"}
+        cursor={"pointer"}
         margin={"2px"}
       >
         {text}
@@ -178,31 +191,42 @@ function BoardList(props) {
       </Flex>
     );
   };
-
+  const maxId =
+    dbRows.length > 0 ? Math.max(...dbRows.map((row) => row.id)) : 0;
   return (
     <Box>
-      <Button m={2} fontWeight={"medium"} colorScheme={"blue"}>
-        일괄 저장
-      </Button>
-      <Button fontWeight={"medium"} colorScheme={"red"}>
-        일괄 삭제
-      </Button>
       <Box>
         <Table>
           <Thead>
             <Tr bgColor={"gray.50"}>
-              <Th fontSize={"1rem"}>선택</Th>
-              <Th fontSize={"1rem"}>날짜</Th>
-              <Th fontSize={"1rem"}>수입</Th>
-              <Th fontSize={"1rem"}>지출</Th>
-              <Th fontSize={"1rem"}>합계</Th>
-              <Th fontSize={"1rem"}>카테고리</Th>
-              <Th fontSize={"1rem"}>방법</Th>
-              <Th fontSize={"1rem"}>입력</Th>
+              <Th textAlign={"center"} fontSize={"1rem"}>
+                댓글
+              </Th>
+              <Th textAlign={"center"} fontSize={"1rem"}>
+                날짜
+              </Th>
+              <Th textAlign={"center"} fontSize={"1rem"}>
+                수입
+              </Th>
+              <Th textAlign={"center"} fontSize={"1rem"}>
+                지출
+              </Th>
+              <Th textAlign={"center"} fontSize={"1rem"}>
+                합계
+              </Th>
+              <Th textAlign={"center"} fontSize={"1rem"}>
+                카테고리
+              </Th>
+              <Th textAlign={"center"} fontSize={"1rem"}>
+                방법
+              </Th>
+              <Th textAlign={"center"} fontSize={"1rem"}>
+                입력
+              </Th>
             </Tr>
           </Thead>
           <Tbody>
-            <Tr bgColor={""} _hover={{ bgColor: "gray.100 " }}>
+            <Tr border="2.5px solid gray">
               <Td>입력</Td>
               <Td>
                 <Input
@@ -245,6 +269,7 @@ function BoardList(props) {
               </Td>
               <Td>
                 <Textarea
+                  placeholder={"설명을 입력해 주세요 !"}
                   value={inputRow.how}
                   onChange={(e) => handleInputChange("how", e.target.value)}
                 />
@@ -261,6 +286,7 @@ function BoardList(props) {
               <Row
                 key={row.id}
                 row={row}
+                maxId={maxId}
                 handleRowUpdate={handleRowUpdate}
                 handleRowDelete={handleRowDelete}
                 MiniBoxGroup={MiniBoxGroup}
@@ -273,8 +299,15 @@ function BoardList(props) {
   );
 }
 
-const Row = ({ row, handleRowUpdate, handleRowDelete, MiniBoxGroup }) => {
+const Row = ({
+  row,
+  maxId,
+  handleRowUpdate,
+  handleRowDelete,
+  MiniBoxGroup,
+}) => {
   const [editRow, setEditRow] = useState({ ...row });
+  const { isOpen, onClose, onOpen } = useDisclosure();
 
   const handleEditChange = (field, value) => {
     setEditRow((prevRow) => ({
@@ -306,9 +339,16 @@ const Row = ({ row, handleRowUpdate, handleRowDelete, MiniBoxGroup }) => {
   };
 
   return (
-    <Tr bgColor={""} _hover={{ bgColor: "gray.100 " }}>
-      <Td>
-        <Checkbox border={"1px solid lightgray"} onChange={(e) => {}} />
+    <Tr
+      bgColor={row.id === maxId ? "gray.50" : ""}
+      _hover={{ bgColor: "gray.50 " }}
+    >
+      <Td fontSize={"1.3rem"}>
+        <FontAwesomeIcon
+          icon={faComments}
+          cursor={"pointer"}
+          onClick={onOpen}
+        />
       </Td>
       <Td>
         <Input
@@ -371,6 +411,12 @@ const Row = ({ row, handleRowUpdate, handleRowDelete, MiniBoxGroup }) => {
           >
             삭제
           </Button>
+          <Modal isOpen={isOpen} onClose={onClose} size="lg">
+            <ModalOverlay />
+            <ModalContent maxWidth="45%" maxHeight="100%">
+              <MyModalBody editRow={editRow} />
+            </ModalContent>
+          </Modal>
         </Flex>
       </Td>
     </Tr>
