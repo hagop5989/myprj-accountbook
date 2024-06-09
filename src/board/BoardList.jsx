@@ -25,6 +25,7 @@ import { useNavigate } from "react-router-dom";
 import { MyModalBody } from "./MyModalBody.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments } from "@fortawesome/free-solid-svg-icons";
+import { mytoast } from "../App.jsx";
 
 function BoardList(props) {
   const account = useContext(LoginContext);
@@ -43,11 +44,11 @@ function BoardList(props) {
   const toast = useToast();
 
   useEffect(() => {
-    /*if (!account.isLoggedIn()) {
+    if (!account.isLoggedIn()) {
       mytoast(toast, "로그인 필요!!", "error");
       account.logout();
       navigate("/login");
-    }*/
+    }
     fetchBoardList();
   }, []);
 
@@ -282,6 +283,7 @@ function BoardList(props) {
             {dbRows.map((row) => (
               <Row
                 key={row.id}
+                id={row.id}
                 row={row}
                 maxId={maxId}
                 handleRowUpdate={handleRowUpdate}
@@ -298,6 +300,7 @@ function BoardList(props) {
 
 const Row = ({
   row,
+  id,
   maxId,
   handleRowUpdate,
   handleRowDelete,

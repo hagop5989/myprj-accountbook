@@ -1,7 +1,11 @@
 import {
   Box,
   Button,
+  Card,
+  CardBody,
   Flex,
+  Image,
+  Input,
   ModalBody,
   ModalFooter,
   ModalHeader,
@@ -22,6 +26,7 @@ import { mytoast } from "../App.jsx";
 export function MyModalBody({ editRow }) {
   const account = useContext(LoginContext);
   const [axiosState, setAxiosState] = useState(false);
+  const [files, setFiles] = useState([]);
   const navigate = useNavigate();
   const toast = useToast();
   const [modalRows, setModalRows] = useState([]);
@@ -31,7 +36,14 @@ export function MyModalBody({ editRow }) {
     nickName: account.nickName,
     text: "",
     likeState: true,
+    fileList: [],
   });
+
+  // file 목록 작성
+  const fileNameList = [];
+  for (let i = 0; i < files.length; i++) {
+    fileNameList.push(<li>{files[i].name}</li>);
+  }
 
   const handleRowChange = (rowId, field, value) => {
     const updatedRows = modalRows.map((row) =>
@@ -55,8 +67,19 @@ export function MyModalBody({ editRow }) {
   };
 
   function handleModalInsert() {
+    const boardId = modalInputRow.boardId;
+    const nickName = modalInputRow.nickName;
+    const text = modalInputRow.text;
+    const likeState = modalInputRow.likeState;
+
     axios
-      .post("/api/board/modal/insert", modalInputRow)
+      .postForm("/api/board/modal/insert", {
+        boardId,
+        nickName,
+        text,
+        likeState,
+        files,
+      })
       .then((res) => {
         mytoast(toast, "입력완료 되었습니다.", "success");
         setAxiosState(!axiosState);
@@ -90,14 +113,18 @@ export function MyModalBody({ editRow }) {
 
   useEffect(() => {
     axios
-      .get("/api/board/modal/list")
+      .get(`/api/board/modal/list?boardId=${editRow.id}`)
       .then((res) => {
         setModalRows(res.data);
+        console.log(modalRows.fileList);
       })
       .catch(() => {})
       .finally(() => {});
   }, [axiosState]);
 
+  const handleImageClick = (src) => {
+    window.open(src, "_blank");
+  };
   return (
     <>
       <ModalHeader>{editRow.date} 댓글 </ModalHeader>
@@ -157,6 +184,22 @@ export function MyModalBody({ editRow }) {
                 </Button>
               </Td>
               <Td>
+                {row.fileList &&
+                  row.fileList.map((file) => (
+                    <Card m={3} key={file.name}>
+                      <CardBody w={200}>
+                        <Image
+                          cursor="pointer"
+                          onClick={() => handleImageClick(file.src)}
+                          w={"100%"}
+                          h={"100%"}
+                          src={file.src}
+                        />
+                      </CardBody>
+                    </Card>
+                  ))}
+              </Td>
+              <Td>
                 <Flex boxSize={"10%"} gap={2} fontWeight={"sm"}>
                   <Button
                     colorScheme={"blue"}
@@ -198,6 +241,13 @@ export function MyModalBody({ editRow }) {
             value={modalInputRow.text}
             onChange={(e) => handleInputChange("text", e.target.value)}
           />
+          <Input
+            multiple
+            type={"file"}
+            onChange={(e) => {
+              setFiles(e.target.files);
+            }}
+          ></Input>
           <Button
             w={100}
             mt={2}

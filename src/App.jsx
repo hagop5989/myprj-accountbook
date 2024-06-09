@@ -1,7 +1,6 @@
 import { Box, Button, ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Page1 } from "./Page1.jsx";
-import BoardList from "./board/BoardList.jsx";
 import "./App.css";
 import Analysis from "./board/Analysis.jsx";
 import React, { useState } from "react";
@@ -15,7 +14,9 @@ import { Home } from "./home/Home.jsx";
 
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMoon } from "@fortawesome/free-solid-svg-icons/faMoon";
-import { faSun } from "@fortawesome/free-solid-svg-icons/faSun"; // axios interceptor 설정
+import { faSun } from "@fortawesome/free-solid-svg-icons/faSun";
+import BoardList from "./board/BoardList.jsx";
+import { JobDetail } from "./login/JobDetail.jsx";
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -64,6 +65,7 @@ const router = createBrowserRouter([
       { path: "analysis", element: <Analysis /> },
       { path: "signup", element: <Signup /> },
       { path: "logIn", element: <Login /> },
+      { path: "testView0", element: <JobDetail /> },
     ],
   },
 ]);
