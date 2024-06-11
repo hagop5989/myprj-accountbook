@@ -4,7 +4,6 @@ import { Page1 } from "./Page1.jsx";
 import "./App.css";
 import Analysis from "./board/Analysis.jsx";
 import React, { useState } from "react";
-import { Signup } from "./login/Signup.jsx";
 import { Login } from "./login/Login.jsx";
 import { ThemeProvider as EmotionThemeProvider } from "@emotion/react";
 import styled from "@emotion/styled";
@@ -17,6 +16,7 @@ import { faMoon } from "@fortawesome/free-solid-svg-icons/faMoon";
 import { faSun } from "@fortawesome/free-solid-svg-icons/faSun";
 import BoardList from "./board/BoardList.jsx";
 import { JobDetail } from "./login/JobDetail.jsx";
+import { Signup } from "./login/Signup_backUp.jsx";
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {

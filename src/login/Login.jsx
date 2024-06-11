@@ -1,4 +1,15 @@
-import { Box } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  Flex,
+  FormControl,
+  FormLabel,
+  Heading,
+  Input,
+  InputGroup,
+  InputRightElement,
+} from "@chakra-ui/react";
 import { customAxios as axios } from "../customInstance.jsx";
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -58,46 +69,46 @@ export function Login() {
 
   return (
     <Box>
-      {/*<Heading>로그인</Heading>*/}
-      {/*<Flex justifyContent={"center"} alignItems={"center"}>*/}
-      {/*  <Center w={"30%"}>*/}
-      {/*    <FormControl>*/}
-      {/*      <FormLabel>아이디(닉네임)</FormLabel>*/}
-      {/*      <InputGroup>*/}
-      {/*        <Input*/}
-      {/*          value={loginMember.nickName}*/}
-      {/*          placeholder={"공백은 입력불가 합니다."}*/}
-      {/*          onChange={(e) => handleLoginMember("nickName", e)}*/}
-      {/*        />*/}
-      {/*        <InputRightElement w={75} mr={1}></InputRightElement>*/}
-      {/*      </InputGroup>*/}
-      {/*      비밀번호*/}
-      {/*      <Input*/}
-      {/*        value={loginMember.password}*/}
-      {/*        type={"password"}*/}
-      {/*        onChange={(e) => handleLoginMember("password", e)}*/}
-      {/*      />*/}
-      {/*      <FormLabel>이메일</FormLabel>*/}
-      {/*      <InputGroup>*/}
-      {/*        <Input*/}
-      {/*          value={loginMember.email}*/}
-      {/*          placeholder={"abc@abc.com"}*/}
-      {/*          onChange={(e) => handleLoginMember("email", e)}*/}
-      {/*        />*/}
-      {/*      </InputGroup>*/}
-      {/*      <Flex justifyContent="center">*/}
-      {/*        <Button*/}
-      {/*          onClick={handleLogin}*/}
-      {/*          colorScheme={"purple"}*/}
-      {/*          w={120}*/}
-      {/*          my={3}*/}
-      {/*        >*/}
-      {/*          로그인*/}
-      {/*        </Button>*/}
-      {/*      </Flex>*/}
-      {/*    </FormControl>*/}
-      {/*  </Center>*/}
-      {/*</Flex>*/}
+      <Heading>로그인</Heading>
+      <Flex justifyContent={"center"} alignItems={"center"}>
+        <Center w={"30%"}>
+          <FormControl>
+            <FormLabel>아이디(닉네임)</FormLabel>
+            <InputGroup>
+              <Input
+                value={loginMember.nickName}
+                placeholder={"공백은 입력불가 합니다."}
+                onChange={(e) => handleLoginMember("nickName", e)}
+              />
+              <InputRightElement w={75} mr={1}></InputRightElement>
+            </InputGroup>
+            비밀번호
+            <Input
+              value={loginMember.password}
+              type={"password"}
+              onChange={(e) => handleLoginMember("password", e)}
+            />
+            <FormLabel>이메일</FormLabel>
+            <InputGroup>
+              <Input
+                value={loginMember.email}
+                placeholder={"abc@abc.com"}
+                onChange={(e) => handleLoginMember("email", e)}
+              />
+            </InputGroup>
+            <Flex justifyContent="center">
+              <Button
+                onClick={handleLogin}
+                colorScheme={"purple"}
+                w={120}
+                my={3}
+              >
+                로그인
+              </Button>
+            </Flex>
+          </FormControl>
+        </Center>
+      </Flex>
       <Box>
         <JobsList2 />
       </Box>

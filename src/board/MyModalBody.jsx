@@ -132,7 +132,7 @@ export function MyModalBody({ editRow }) {
         <Box mb={1}>
           [수입 : {editRow.income.toLocaleString()} 지출 :{" "}
           {editRow.expense.toLocaleString()} 합계 :{" "}
-          {editRow.rowSum.toLocaleString()} ]
+          {(editRow.income - editRow.expense).toLocaleString()} ]
         </Box>
         <Tr>
           <Th textAlign={"center"} w={"10%"}>
