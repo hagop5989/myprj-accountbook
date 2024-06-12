@@ -15,8 +15,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMoon } from "@fortawesome/free-solid-svg-icons/faMoon";
 import { faSun } from "@fortawesome/free-solid-svg-icons/faSun";
 import BoardList from "./board/BoardList.jsx";
-import { JobDetail } from "./login/JobDetail.jsx";
 import { Signup } from "./login/Signup_backUp.jsx";
+import AddressForm from "./board/AddressForm.jsx";
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -65,7 +65,7 @@ const router = createBrowserRouter([
       { path: "analysis", element: <Analysis /> },
       { path: "signup", element: <Signup /> },
       { path: "logIn", element: <Login /> },
-      { path: "testView0", element: <JobDetail /> },
+      { path: "test", element: <AddressForm /> },
     ],
   },
 ]);

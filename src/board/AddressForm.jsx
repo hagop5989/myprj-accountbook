@@ -1,10 +1,14 @@
 import React, { useEffect, useState } from "react";
+import { Box, Input, InputGroup, InputRightElement } from "@chakra-ui/react";
 
 const AddressForm = () => {
   const [postcode, setPostcode] = useState("");
   const [address, setAddress] = useState("");
   const [detailAddress, setDetailAddress] = useState("");
   const [extraAddress, setExtraAddress] = useState("");
+  const [address1, setAddress1] = useState("");
+  const [address2, setAddress2] = useState("");
+  const [fullAddress, setFullAddress] = useState("");
 
   useEffect(() => {
     // Daum Postcode API 스크립트가 로드되었는지 확인
@@ -61,39 +65,41 @@ const AddressForm = () => {
   };
 
   return (
-    <div>
-      <input
-        type="text"
-        id="postcode"
-        placeholder="우편번호"
-        value={postcode}
-        readOnly
+    <Box>
+      <Input
+        type="button"
+        cursor={"pointer"}
+        bgColor={"green.400"}
+        onClick={handlePostcode}
+        value="주소 찾기"
       />
-      <input type="button" onClick={handlePostcode} value="우편번호 찾기" />
+      {/*<Input*/}
+      {/*  type="text"*/}
+      {/*  id="postcode"*/}
+      {/*  placeholder="우편번호"*/}
+      {/*  value={postcode}*/}
+      {/*  readOnly*/}
+      {/*/>*/}
+
       <br />
-      <input
-        type="text"
-        id="address"
-        placeholder="주소"
-        value={address}
-        readOnly
-      />
-      <br />
-      <input
+      <InputGroup>
+        <InputRightElement w={"100px"}>{extraAddress}</InputRightElement>
+        <Input
+          type="text"
+          id="address"
+          placeholder="주소"
+          value={address}
+          readOnly
+        />
+      </InputGroup>
+      <Input
         type="text"
         id="detailAddress"
         placeholder="상세주소"
         value={detailAddress}
         onChange={(e) => setDetailAddress(e.target.value)}
       />
-      <input
-        type="text"
-        id="extraAddress"
-        placeholder="참고항목"
-        value={extraAddress}
-        readOnly
-      />
-    </div>
+    </Box>
   );
 };
 
