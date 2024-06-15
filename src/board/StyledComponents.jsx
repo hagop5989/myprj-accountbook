@@ -1,5 +1,6 @@
 import styled from "@emotion/styled";
 import { Box, HStack, VStack } from "@chakra-ui/react";
+/* StyledComponents.jsx 파일 (Calendar 들의 CSS 파트)  */
 
 export const CalendarWrapper = styled(Box)`
   display: flex;

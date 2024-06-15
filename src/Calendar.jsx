@@ -22,6 +22,8 @@ import {
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 
+/* Calendar.jsx 파일(왼쪽 Calendar 부분)  */
+
 const Calendar = ({ onDateClick }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [eventName, setEventName] = useState("");

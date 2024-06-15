@@ -19,7 +19,7 @@ import {
   TodayDayBox,
 } from "./StyledComponents";
 import Calendar from "../Calendar.jsx";
-
+/* CenterCalendar.jsx 파일  */
 const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
 
 const CenterCalendar = ({ month, year, setMonth, setYear }) => {
@@ -122,6 +122,10 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
   );
 };
 
+function SideBar() {
+  return null;
+}
+
 const CalendarContainer = () => {
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth());
@@ -133,23 +137,26 @@ const CalendarContainer = () => {
   };
 
   return (
-    <CalendarWrapper>
-      <CenterCalendar
-        month={month}
-        year={year}
-        setMonth={setMonth}
-        setYear={setYear}
-      />
-      <LeftCalendarContainer>
-        <Calendar
+    <Box>
+      <SideBar />
+      <CalendarWrapper>
+        <CenterCalendar
           month={month}
           year={year}
           setMonth={setMonth}
           setYear={setYear}
-          onDateClick={handleDateClick}
         />
-      </LeftCalendarContainer>
-    </CalendarWrapper>
+        <LeftCalendarContainer>
+          <Calendar
+            month={month}
+            year={year}
+            setMonth={setMonth}
+            setYear={setYear}
+            onDateClick={handleDateClick}
+          />
+        </LeftCalendarContainer>
+      </CalendarWrapper>
+    </Box>
   );
 };
 

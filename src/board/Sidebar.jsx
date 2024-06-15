@@ -1,7 +1,8 @@
 import React from "react";
 import { Box, Button, Checkbox, Text, VStack } from "@chakra-ui/react";
 
-const Sidebar = () => {
+/* Sidebar.jsx 파일  */
+export const Sidebar = () => {
   return (
     <Box>
       <VStack
