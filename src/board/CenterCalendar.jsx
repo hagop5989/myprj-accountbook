@@ -37,7 +37,6 @@ import Calendar from "../Calendar.jsx";
 import DatePicker from "react-datepicker";
 
 const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
-
 const predefinedColors = [
   "#6A0572", // Deep Purple
   "#044A9F", // Muted Blue
@@ -71,8 +70,7 @@ const CenterCalendar = ({
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [memo, setMemo] = useState("");
-  // const [events, setEvents] = useState([]);
-  const [selectedColor, setSelectedColor] = useState("#00aaff"); // 기본값 하늘색
+  const [selectedColor, setSelectedColor] = useState("#00aaff");
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [eventColors, setEventColors] = useState({});
 
@@ -91,7 +89,7 @@ const CenterCalendar = ({
   const handleDateClick = (day) => {
     const date = new Date(year, month, day);
     setSelectedDate(date);
-    setStartDate(date); // 클릭한 날짜를 시작일자로 설정
+    setStartDate(date);
     onOpen();
   };
 
@@ -364,7 +362,6 @@ const CenterCalendar = ({
                   <Badge
                     colorScheme={event.confirmed ? "blue" : "red"}
                     borderRadius={"5px"}
-                    onClick={() => handleConfirm(index)}
                     cursor="pointer"
                   >
                     {event.confirmed ? "확인됨" : "미확인"}
@@ -374,8 +371,7 @@ const CenterCalendar = ({
                 <Text>
                   {format(new Date(event.start), "yyyy-MM-dd")} -{" "}
                   {format(new Date(event.end), "yyyy-MM-dd")}
-                </Text>{" "}
-                {/* 여기를 수정 */}
+                </Text>
               </Box>
             ))}
           </VStack>
