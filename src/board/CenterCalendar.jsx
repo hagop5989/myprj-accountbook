@@ -38,43 +38,56 @@ import DatePicker from "react-datepicker";
 
 const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
 
+const predefinedColors = [
+  "#00aaff",
+  "#ff0066",
+  "#00cc99",
+  "#ffcc00",
+  "#6600cc",
+  "#cc00cc",
+  "#ff9900",
+  "#3399ff",
+  "#33cc33",
+  "#cc3333",
+  "#009999",
+  "#ffcc99",
+  "#cc6699",
+  "#993399",
+  "#6699cc",
+];
+
 const CenterCalendar = ({ month, year, setMonth, setYear }) => {
-  // 상태 관리 추가
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
-
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDayIndex = new Date(year, month, 1).getDay();
-  const today = new Date();
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [eventName, setEventName] = useState("");
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [memo, setMemo] = useState("");
   const [events, setEvents] = useState([]);
+  const [selectedColor, setSelectedColor] = useState("#00aaff"); // 기본값 하늘색
+  const { isOpen, onOpen, onClose } = useDisclosure();
   const [eventColors, setEventColors] = useState({});
 
   useEffect(() => {
     const newEventColors = {};
     events.forEach((event) => {
       if (!eventColors[event.name]) {
-        newEventColors[event.name] = generateColor();
+        newEventColors[event.name] = selectedColor;
       } else {
         newEventColors[event.name] = eventColors[event.name];
       }
     });
     setEventColors(newEventColors);
-  }, [events]);
+  }, [events, selectedColor]);
 
   const handleDateClick = (day) => {
     const date = new Date(year, month, day);
-    setSelectedDate(date); // 올바른 날짜로 설정
+    setSelectedDate(date);
+    setStartDate(date); // 클릭한 날짜를 시작일자로 설정
     onOpen();
   };
 
-  // 날짜 선택 후 달력이 사라지도록 핸들러 수정
   const handleStartDateChange = (date) => {
     setStartDate(date);
     setShowStartDatePicker(false);
@@ -86,52 +99,43 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
   };
 
   const handleSaveEvent = () => {
+    const overlappingEvents = events.filter(
+      (event) =>
+        startDate <= new Date(event.end) && endDate >= new Date(event.start),
+    );
+
+    if (overlappingEvents.length >= 3) {
+      alert("일정은 최대 3개까지 추가할 수 있습니다.");
+      return;
+    }
+
     if (eventName && startDate && endDate) {
       const newEvent = {
         name: eventName,
         start: startDate,
         end: endDate,
         memo,
+        color: selectedColor,
       };
       setEvents([...events, newEvent]);
       setEventName("");
       setStartDate(new Date());
       setEndDate(new Date());
       setMemo("");
+      setSelectedColor("#00aaff");
       onClose();
     }
   };
 
-  const handleConfirm = (index) => {
-    const updatedEvents = events.map((event, i) =>
-      i === index ? { ...event, confirmed: !event.confirmed } : event,
-    );
-    setEvents(updatedEvents);
+  const handleColorChange = (color) => {
+    setSelectedColor(color);
   };
-
-  const generateColor = () => {
-    const hue = Math.floor(Math.random() * 360);
-    return `hsl(${hue}, 70%, 70%)`;
-  };
-
-  /* Center Calendar 핵심 로직 */
 
   const renderDays = () => {
     const days = [];
     const eventMap = new Map();
-    const eventColors = new Map();
 
-    // 고유한 색상을 생성하는 함수
-    const generateColor = () => {
-      const hue = Math.floor(Math.random() * 360);
-      return `hsl(${hue}, 70%, 70%)`;
-    };
-
-    // 각 이벤트에 고유한 색상을 할당
     events.forEach((event) => {
-      if (!eventColors[event.name]) {
-        eventColors[event.name] = generateColor();
-      }
       eachDayOfInterval({
         start: new Date(event.start),
         end: new Date(event.end),
@@ -140,9 +144,15 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
         if (!eventMap.has(key)) {
           eventMap.set(key, []);
         }
-        eventMap.get(key).push({ ...event, color: eventColors[event.name] });
+        eventMap.get(key).push({ ...event, color: event.color });
       });
     });
+
+    const eventPositions = new Map(); // 이벤트 위치를 저장할 맵
+
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const firstDayIndex = new Date(year, month, 1).getDay();
+    const today = new Date(); // 여기 추가
 
     for (let i = 0; i < firstDayIndex; i++) {
       days.push(<DayBox key={`empty-${i}`} />);
@@ -153,6 +163,31 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
       const dayOfWeek = (firstDayIndex + i - 1) % 7;
       const formattedDate = format(date, "yyyy-MM-dd");
       const eventsForDay = eventMap.get(formattedDate) || [];
+
+      // 이벤트 위치를 계산
+      eventsForDay.forEach((event, index) => {
+        const start = format(new Date(event.start), "yyyy-MM-dd");
+        const end = format(new Date(event.end), "yyyy-MM-dd");
+
+        // 기존 위치를 검사하여 새로운 위치를 계산
+        let position = 0;
+        while (true) {
+          const overlapping = eventsForDay.some((e, idx) => {
+            if (idx === index) return false;
+            const eStart = format(new Date(e.start), "yyyy-MM-dd");
+            const eEnd = format(new Date(e.end), "yyyy-MM-dd");
+            return (
+              eStart <= end &&
+              eEnd >= start &&
+              eventPositions.get(e.name) === position
+            );
+          });
+          if (!overlapping) break;
+          position++;
+        }
+        eventPositions.set(event.name, position);
+      });
+
       days.push(
         <DayBox
           key={i}
@@ -179,7 +214,7 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
                 format(new Date(event.start), "yyyy-MM-dd") !== formattedDate &&
                 format(new Date(event.end), "yyyy-MM-dd") !== formattedDate
               }
-              offset={index * 25}
+              offset={eventPositions.get(event.name) * 25}
               bgColor={event.color}
             >
               {format(new Date(event.start), "yyyy-MM-dd") === formattedDate
@@ -204,6 +239,7 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
     setMonth(today.getMonth());
     setYear(today.getFullYear());
   };
+
   return (
     <ChakraProvider>
       <SmallCalendarContainer>
@@ -305,11 +341,12 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
                     {event.confirmed ? "확인됨" : "미확인"}
                   </Badge>
                 </HStack>
-                <Text>{event.date}</Text>
-                <Text>
-                  {event.start} - {event.end}
-                </Text>
                 <Text>{event.memo}</Text>
+                <Text>
+                  {format(new Date(event.start), "yyyy-MM-dd")} -{" "}
+                  {format(new Date(event.end), "yyyy-MM-dd")}
+                </Text>{" "}
+                {/* 여기를 수정 */}
               </Box>
             ))}
           </VStack>
@@ -366,6 +403,26 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
                     inline
                   />
                 )}
+              </Box>
+              <Box width="100%">
+                <Text>색상 선택</Text>
+                <Box display="flex" flexWrap="wrap">
+                  {predefinedColors.map((color, index) => (
+                    <Box
+                      key={index}
+                      width="20px"
+                      height="20px"
+                      bg={color}
+                      m="2px"
+                      borderRadius="50%"
+                      cursor="pointer"
+                      border={
+                        selectedColor === color ? "2px solid black" : "none"
+                      }
+                      onClick={() => handleColorChange(color)}
+                    />
+                  ))}
+                </Box>
               </Box>
               <Textarea
                 placeholder="메모"

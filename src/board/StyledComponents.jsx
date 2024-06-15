@@ -47,7 +47,7 @@ export const EventBox = styled(Box)`
   margin-left: -4px;
   margin-right: -4px;
   padding: 2px;
-  margin-top: 8px;
+  margin-top: 32px; /* 위치를 낮추기 위해 margin-top을 조정 */
   border-radius: 4px;
   font-size: 12px;
   text-align: center;
