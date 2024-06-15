@@ -1,5 +1,10 @@
 import React from "react";
 import { Box, Checkbox, Flex, Text, VStack } from "@chakra-ui/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+  faGear,
+  faList,
+} from "@fortawesome/free-solid-svg-icons"; /* Sidebar.jsx 파일  */
 
 /* Sidebar.jsx 파일  */
 export const Sidebar = () => {
@@ -20,8 +25,11 @@ export const Sidebar = () => {
         </Text>
         <Box h={"250px"}></Box>
         <Flex mt="15px">
-          <Box w={"200px"} p={2} borderY={"1px solid gray"}>
-            전체일정 목록
+          <Box w={"200px"} p={3} borderY={"1px solid gray"}>
+            <Flex h={"20px"} lineHeight={"20px"}>
+              <FontAwesomeIcon icon={faList} />
+              <Text mx={2}>전체일정 목록</Text>
+            </Flex>
           </Box>
         </Flex>
         <Box></Box>
@@ -29,8 +37,8 @@ export const Sidebar = () => {
           <Text fontWeight="bold" mb={2}>
             톡캘린더
           </Text>
-          <Checkbox defaultischecked={"true"}>내 캘린더</Checkbox>
-          <Checkbox>할 일</Checkbox>
+          <Checkbox defaultischecked={"true"}>내 캘린더</Checkbox>{" "}
+          <Checkbox> 할 일</Checkbox>
           <Checkbox>친구 생일</Checkbox>
         </Box>
         <Box>
@@ -40,7 +48,9 @@ export const Sidebar = () => {
           <Checkbox>대한민국 기념일</Checkbox>
         </Box>
         <Box>
-          <Text fontWeight="bold">설정</Text>
+          <Text fontWeight="bold">
+            <FontAwesomeIcon icon={faGear} /> 설정
+          </Text>
         </Box>
       </VStack>
     </Box>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Badge,
   Box,
   Button,
   ChakraProvider,
@@ -271,7 +270,9 @@ const CenterCalendar = ({
     <ChakraProvider>
       <SmallCalendarContainer>
         <Flex>
-          <Button onClick={handleTodayClick}>오늘</Button>
+          <Button w={"80px"} colorScheme={"blue"} onClick={handleTodayClick}>
+            오늘
+          </Button>
           <Spacer w={"600px"} />
           <MonthYearSelector>
             <Button onClick={() => setMonth(month === 0 ? 11 : month - 1)}>
@@ -356,19 +357,30 @@ const CenterCalendar = ({
                 width="100%"
               >
                 <HStack justifyContent="space-between">
-                  <Text mb={1} fontWeight={"bold"}>
-                    {event.name}
-                  </Text>
-                  <Badge
-                    colorScheme={event.confirmed ? "blue" : "red"}
-                    borderRadius={"5px"}
-                    cursor="pointer"
+                  <Box
+                    w={"100%"}
+                    textIndent={"8px"}
+                    fontWeight={"600"}
+                    bgColor={event.color}
+                    color={"white"}
+                    borderRadius="md"
+                    whiteSpace="nowrap" // 줄 바꿈을 막음
+                    overflow="hidden" // 넘친 내용을 숨김
+                    textOverflow="ellipsis" // 넘친 내용을 "..."으로 표시
                   >
-                    {event.confirmed ? "확인됨" : "미확인"}
-                  </Badge>
+                    {event.name}
+                  </Box>
                 </HStack>
-                <Text>{event.memo}</Text>
-                <Text>
+                <Text borderLeft={`4px solid ${event.color}`} p={1} my={3}>
+                  {event.memo}
+                </Text>
+                <Text
+                  bgColor={"gray.100"}
+                  borderRadius={"8px"}
+                  p={1}
+                  fontWeight={"500"}
+                  fontSize={"13px"}
+                >
                   {format(new Date(event.start), "yyyy-MM-dd")} -{" "}
                   {format(new Date(event.end), "yyyy-MM-dd")}
                 </Text>

@@ -56,6 +56,7 @@ export const EventBox = styled(Box)`
   left: 0;
   right: 0;
   height: 20px; /* Height of the event bar */
+  line-height: 15px;
   ${(props) =>
     props.isEventStart &&
     `
@@ -82,13 +83,16 @@ export const TodayDayBox = styled(Box)`
   margin-top: -1.1px;
   border-radius: 8px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
-  border: 2px solid gray; /* Highlight border for today */
+  border: 2.5px solid yellowgreen; /* Highlight border for today */
 `;
 
 export const DayLabelBox = styled(Box)`
   background-color: white;
   font-size: 13px;
   color: ${(props) => props.color || "black"};
+  whitespace: nowrap; // 줄 바꿈을 막음
+  overflow: hidden; // 넘친 내용을 숨김
+  textoverflow: ellipsis; // 넘친 내용을 "..."으로 표시
   padding: 5px;
   margin: 1px;
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1);
