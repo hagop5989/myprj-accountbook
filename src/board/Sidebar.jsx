@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Button, Checkbox, Text, VStack } from "@chakra-ui/react";
+import { Box, Checkbox, Flex, Text, VStack } from "@chakra-ui/react";
 
 /* Sidebar.jsx 파일  */
 export const Sidebar = () => {
@@ -19,18 +19,12 @@ export const Sidebar = () => {
           나의 캘린더
         </Text>
         <Box h={"250px"}></Box>
-        <Button colorScheme="teal">일정 만들기</Button>
-        <Button colorScheme="teal" variant="outline">
-          할 일 만들기
-        </Button>
-        <Box>
-          <Text fontWeight="bold" mb={2}>
-            2024년 8월
-          </Text>
-          <Box border="1px solid #e2e8f0" borderRadius="md" p={2}>
-            <Text>달력 (간단한 달력 구현)</Text>
+        <Flex mt="15px">
+          <Box w={"200px"} p={2} borderY={"1px solid gray"}>
+            전체일정 목록
           </Box>
-        </Box>
+        </Flex>
+        <Box></Box>
         <Box>
           <Text fontWeight="bold" mb={2}>
             톡캘린더

@@ -39,24 +39,31 @@ import DatePicker from "react-datepicker";
 const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
 
 const predefinedColors = [
-  "#00aaff",
-  "#ff0066",
-  "#00cc99",
-  "#ffcc00",
-  "#6600cc",
-  "#cc00cc",
-  "#ff9900",
-  "#3399ff",
-  "#33cc33",
-  "#cc3333",
-  "#009999",
-  "#ffcc99",
-  "#cc6699",
-  "#993399",
-  "#6699cc",
+  "#6A0572", // Deep Purple
+  "#044A9F", // Muted Blue
+  "#0A8754", // Muted Green
+  "#FF8C42", // Warm Orange
+  "#B94767", // Deep Pink
+  "#4A4E69", // Soft Slate
+  "#1B998B", // Teal
+  "#D72638", // Soft Red
+  "#3E5C76", // Denim Blue
+  "#6C757D", // Grey
+  "#F4A261", // Muted Peach
+  "#2A9D8F", // Muted Teal
+  "rgb(214,56,163)",
+  "#BCB8B1", // Light Grey
+  "#264653", // Dark Blue
 ];
 
-const CenterCalendar = ({ month, year, setMonth, setYear }) => {
+const CenterCalendar = ({
+  month,
+  year,
+  setMonth,
+  setYear,
+  events,
+  setEvents,
+}) => {
   const [showStartDatePicker, setShowStartDatePicker] = useState(false);
   const [showEndDatePicker, setShowEndDatePicker] = useState(false);
   const [selectedDate, setSelectedDate] = useState(new Date());
@@ -64,7 +71,7 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
   const [startDate, setStartDate] = useState(new Date());
   const [endDate, setEndDate] = useState(new Date());
   const [memo, setMemo] = useState("");
-  const [events, setEvents] = useState([]);
+  // const [events, setEvents] = useState([]);
   const [selectedColor, setSelectedColor] = useState("#00aaff"); // 기본값 하늘색
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [eventColors, setEventColors] = useState({});
@@ -99,6 +106,11 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
   };
 
   const handleSaveEvent = () => {
+    if (endDate < startDate) {
+      alert("종료일보다 시작일이 빠를 수 없습니다.");
+      return;
+    }
+
     const overlappingEvents = events.filter(
       (event) =>
         startDate <= new Date(event.end) && endDate >= new Date(event.start),
@@ -117,7 +129,7 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
         memo,
         color: selectedColor,
       };
-      setEvents([...events, newEvent]);
+      setEvents([...events, newEvent]); // events 업데이트
       setEventName("");
       setStartDate(new Date());
       setEndDate(new Date());
@@ -134,7 +146,9 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
   const renderDays = () => {
     const days = [];
     const eventMap = new Map();
+    const eventPositions = new Map(); // 이벤트 위치를 저장할 맵
 
+    // 각 날짜별로 이벤트를 그룹화
     events.forEach((event) => {
       eachDayOfInterval({
         start: new Date(event.start),
@@ -148,11 +162,40 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
       });
     });
 
-    const eventPositions = new Map(); // 이벤트 위치를 저장할 맵
+    // 각 이벤트의 위치를 계산하여 저장
+    events.forEach((event) => {
+      const start = format(new Date(event.start), "yyyy-MM-dd");
+      const end = format(new Date(event.end), "yyyy-MM-dd");
+
+      // 기존 위치를 검사하여 새로운 위치를 계산
+      let position = 0;
+      while (true) {
+        const overlapping = Array.from(eventPositions.entries()).some(
+          ([eName, positions]) => {
+            if (eName === event.name) return false; // 같은 이벤트는 무시
+            return positions.some(([eStart, eEnd, ePos]) => {
+              return (
+                ((start >= eStart && start <= eEnd) ||
+                  (end >= eStart && end <= eEnd) ||
+                  (start <= eStart && end >= eEnd)) &&
+                ePos === position
+              );
+            });
+          },
+        );
+        if (!overlapping) break;
+        position++;
+      }
+
+      if (!eventPositions.has(event.name)) {
+        eventPositions.set(event.name, []);
+      }
+      eventPositions.get(event.name).push([start, end, position]);
+    });
 
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const firstDayIndex = new Date(year, month, 1).getDay();
-    const today = new Date(); // 여기 추가
+    const today = new Date();
 
     for (let i = 0; i < firstDayIndex; i++) {
       days.push(<DayBox key={`empty-${i}`} />);
@@ -163,30 +206,6 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
       const dayOfWeek = (firstDayIndex + i - 1) % 7;
       const formattedDate = format(date, "yyyy-MM-dd");
       const eventsForDay = eventMap.get(formattedDate) || [];
-
-      // 이벤트 위치를 계산
-      eventsForDay.forEach((event, index) => {
-        const start = format(new Date(event.start), "yyyy-MM-dd");
-        const end = format(new Date(event.end), "yyyy-MM-dd");
-
-        // 기존 위치를 검사하여 새로운 위치를 계산
-        let position = 0;
-        while (true) {
-          const overlapping = eventsForDay.some((e, idx) => {
-            if (idx === index) return false;
-            const eStart = format(new Date(e.start), "yyyy-MM-dd");
-            const eEnd = format(new Date(e.end), "yyyy-MM-dd");
-            return (
-              eStart <= end &&
-              eEnd >= start &&
-              eventPositions.get(e.name) === position
-            );
-          });
-          if (!overlapping) break;
-          position++;
-        }
-        eventPositions.set(event.name, position);
-      });
 
       days.push(
         <DayBox
@@ -201,27 +220,37 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
           >
             {i}
           </Text>
-          {eventsForDay.map((event, index) => (
-            <EventBox
-              key={index}
-              isEventStart={
-                format(new Date(event.start), "yyyy-MM-dd") === formattedDate
-              }
-              isEventEnd={
-                format(new Date(event.end), "yyyy-MM-dd") === formattedDate
-              }
-              isEventInRange={
-                format(new Date(event.start), "yyyy-MM-dd") !== formattedDate &&
-                format(new Date(event.end), "yyyy-MM-dd") !== formattedDate
-              }
-              offset={eventPositions.get(event.name) * 25}
-              bgColor={event.color}
-            >
-              {format(new Date(event.start), "yyyy-MM-dd") === formattedDate
-                ? event.name
-                : ""}
-            </EventBox>
-          ))}
+          {eventsForDay.map((event, index) => {
+            const eventPosition = eventPositions
+              .get(event.name)
+              .find(
+                ([eStart, eEnd]) =>
+                  eStart <= formattedDate && eEnd >= formattedDate,
+              );
+
+            return (
+              <EventBox
+                key={index}
+                isEventStart={
+                  format(new Date(event.start), "yyyy-MM-dd") === formattedDate
+                }
+                isEventEnd={
+                  format(new Date(event.end), "yyyy-MM-dd") === formattedDate
+                }
+                isEventInRange={
+                  format(new Date(event.start), "yyyy-MM-dd") !==
+                    formattedDate &&
+                  format(new Date(event.end), "yyyy-MM-dd") !== formattedDate
+                }
+                offset={eventPosition[2] * 25}
+                bgColor={event.color}
+              >
+                {format(new Date(event.start), "yyyy-MM-dd") === formattedDate
+                  ? event.name
+                  : ""}
+              </EventBox>
+            );
+          })}
         </DayBox>,
       );
     }
@@ -316,7 +345,7 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
           borderRadius={"15px"}
         >
           <Text fontSize="20px" fontWeight={"bold"}>
-            일정
+            이달의 일정
           </Text>
           <VStack spacing={4}>
             {events.map((event, index) => (
@@ -446,6 +475,18 @@ const CalendarContainer = () => {
   const today = new Date();
   const [month, setMonth] = useState(today.getMonth());
   const [year, setYear] = useState(today.getFullYear());
+  const [events, setEvents] = useState([]); // events 상태 정의
+
+  const currentMonthEvents = events.filter((event) => {
+    const eventStart = new Date(event.start);
+    const eventEnd = new Date(event.end);
+    return (
+      (eventStart.getMonth() === month && eventStart.getFullYear() === year) ||
+      (eventEnd.getMonth() === month && eventEnd.getFullYear() === year) ||
+      (eventStart < new Date(year, month + 1, 0) &&
+        eventEnd > new Date(year, month, 1))
+    );
+  });
 
   return (
     <CalendarWrapper>
@@ -454,6 +495,8 @@ const CalendarContainer = () => {
         year={year}
         setMonth={setMonth}
         setYear={setYear}
+        events={currentMonthEvents} // 현재 달의 이벤트만 전달
+        setEvents={setEvents} // setEvents 전달
       />
     </CalendarWrapper>
   );
