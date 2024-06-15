@@ -11,3 +11,11 @@ body {
 }
 
 
+.react-datepicker__day--in-selecting-range,
+.react-datepicker__day--in-range,
+.react-datepicker__day--selecting-range-start,
+.react-datepicker__day--range-start,
+.react-datepicker__day--range-end {
+    background-color: transparent !important;
+    color: inherit !important;
+}
