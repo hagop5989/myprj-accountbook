@@ -1,18 +1,31 @@
 import React, { useState } from "react";
-import { Button, Select, SimpleGrid, Text, VStack } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Flex,
+  Select,
+  SimpleGrid,
+  Spacer,
+  Text,
+} from "@chakra-ui/react";
 import {
   CalendarWrapper,
   DayBox,
+  DayLabelBox,
   EmptyDayBox,
   LeftCalendarContainer,
   MonthYearSelector,
   SmallCalendarContainer,
+  TodayDayBox,
 } from "./StyledComponents";
 import Calendar from "../Calendar.jsx";
 
+const daysOfWeek = ["일", "월", "화", "수", "목", "금", "토"];
+
 const CenterCalendar = ({ month, year, setMonth, setYear }) => {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const firstDayIndex = new Date(year, month, 1).getDay();
+  const today = new Date();
 
   const renderDays = () => {
     const days = [];
@@ -20,98 +33,82 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
       days.push(<EmptyDayBox key={`empty-${i}`} />);
     }
     for (let i = 1; i <= daysInMonth; i++) {
-      let bg = "white";
-      let color = "black";
-      let label = "";
-
+      const isToday =
+        i === today.getDate() &&
+        month === today.getMonth() &&
+        year === today.getFullYear();
+      const dayOfWeek = (firstDayIndex + i - 1) % 7;
       days.push(
-        <DayBox bg={bg} color={color} key={i}>
-          <Text fontSize="xl">{i}</Text>
-          <Text fontSize="sm">{label}</Text>
+        <DayBox key={i} as={isToday ? TodayDayBox : Box}>
+          <Text
+            fontSize="lg"
+            color={dayOfWeek === 0 ? "red" : dayOfWeek === 6 ? "blue" : "black"}
+          >
+            {i}
+          </Text>
         </DayBox>,
       );
     }
     return days;
   };
 
-  const handleMonthChange = (event) => {
-    setMonth(parseInt(event.target.value));
-  };
+  const years = [];
+  const currentYear = new Date().getFullYear();
+  for (let i = currentYear - 5; i <= currentYear + 5; i++) {
+    years.push(i);
+  }
 
-  const handleYearChange = (event) => {
-    setYear(parseInt(event.target.value));
-  };
-
-  return (
-    <VStack spacing={4} p={4}>
-      <MonthYearSelector>
-        <Select value={year} onChange={handleYearChange}>
-          {[2020, 2021, 2022, 2023, 2024, 2025].map((y) => (
-            <option key={y} value={y}>
-              {y}년
-            </option>
-          ))}
-        </Select>
-        <Select value={month} onChange={handleMonthChange}>
-          {[
-            "1월",
-            "2월",
-            "3월",
-            "4월",
-            "5월",
-            "6월",
-            "7월",
-            "8월",
-            "9월",
-            "10월",
-            "11월",
-            "12월",
-          ].map((m, index) => (
-            <option key={index} value={index}>
-              {m}
-            </option>
-          ))}
-        </Select>
-      </MonthYearSelector>
-      <SimpleGrid columns={7} spacing={1} w="full">
-        {renderDays()}
-      </SimpleGrid>
-    </VStack>
-  );
-};
-
-const CenterCalendar = ({ month, year, setMonth, setYear }) => {
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  const firstDayIndex = new Date(year, month, 1).getDay();
-
-  const renderDays = () => {
-    const days = [];
-    for (let i = 0; i < firstDayIndex; i++) {
-      days.push(<EmptyDayBox key={`empty-${i}`} />);
-    }
-    for (let i = 1; i <= daysInMonth; i++) {
-      days.push(
-        <DayBox key={i}>
-          <Text fontSize="lg">{i}</Text>
-        </DayBox>,
-      );
-    }
-    return days;
+  const handleTodayClick = () => {
+    const today = new Date();
+    setMonth(today.getMonth());
+    setYear(today.getFullYear());
   };
 
   return (
     <SmallCalendarContainer>
-      <MonthYearSelector>
-        <Button onClick={() => setMonth(month === 0 ? 11 : month - 1)}>
-          {"<"}
-        </Button>
-        <Text fontSize={"lg"} fontWeight={"bold"} mx={2}>
-          {`${year}년 ${month + 1}월`}
-        </Text>
-        <Button onClick={() => setMonth(month === 11 ? 0 : month + 1)}>
-          {">"}
-        </Button>
-      </MonthYearSelector>
+      <Flex>
+        <Button onClick={handleTodayClick}>오늘</Button>
+        <Spacer w={"600px"} />
+        <MonthYearSelector>
+          <Button onClick={() => setMonth(month === 0 ? 11 : month - 1)}>
+            {"<"}
+          </Button>
+
+          <Select
+            value={year}
+            onChange={(e) => setYear(parseInt(e.target.value))}
+          >
+            {years.map((y) => (
+              <option key={y} value={y}>
+                {y}년
+              </option>
+            ))}
+          </Select>
+          <Select
+            value={month}
+            onChange={(e) => setMonth(parseInt(e.target.value))}
+          >
+            {Array.from({ length: 12 }, (_, i) => i).map((m) => (
+              <option key={m} value={m}>
+                {`${m + 1}월`}
+              </option>
+            ))}
+          </Select>
+          <Button onClick={() => setMonth(month === 11 ? 0 : month + 1)}>
+            {">"}
+          </Button>
+        </MonthYearSelector>
+      </Flex>
+      <SimpleGrid columns={7} spacing={1} w="full">
+        {daysOfWeek.map((day, index) => (
+          <DayLabelBox
+            key={index}
+            color={index === 0 ? "red" : index === 6 ? "blue" : "black"}
+          >
+            {day}
+          </DayLabelBox>
+        ))}
+      </SimpleGrid>
       <SimpleGrid
         h={"700px"}
         fontWeight={"bold"}
@@ -126,8 +123,14 @@ const CenterCalendar = ({ month, year, setMonth, setYear }) => {
 };
 
 const CalendarContainer = () => {
-  const [month, setMonth] = useState(7);
-  const [year, setYear] = useState(2024);
+  const today = new Date();
+  const [month, setMonth] = useState(today.getMonth());
+  const [year, setYear] = useState(today.getFullYear());
+
+  const handleDateClick = (date) => {
+    setMonth(date.getMonth());
+    setYear(date.getFullYear());
+  };
 
   return (
     <CalendarWrapper>
@@ -143,6 +146,7 @@ const CalendarContainer = () => {
           year={year}
           setMonth={setMonth}
           setYear={setYear}
+          onDateClick={handleDateClick}
         />
       </LeftCalendarContainer>
     </CalendarWrapper>

@@ -22,7 +22,7 @@ import {
 } from "@chakra-ui/react";
 import { format } from "date-fns";
 
-const Calendar = () => {
+const Calendar = ({ onDateClick }) => {
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [eventName, setEventName] = useState("");
   const [startTime, setStartTime] = useState("");
@@ -33,6 +33,7 @@ const Calendar = () => {
 
   const handleDateClick = (date) => {
     setSelectedDate(date);
+    onDateClick(date); // 이 부분 추가
     onOpen();
   };
 
@@ -78,19 +79,9 @@ const Calendar = () => {
 
   return (
     <ChakraProvider>
-      <Box
-        mt={"10px"}
-        ml="-733px"
-        display="flex"
-        width="95vw"
-        height="80vh"
-        // border={"1px solid red"}
-      >
+      <Box mt={"10px"} ml="-733px" display="flex" width="95vw" height="80vh">
         <Box width="70%">
-          <Box
-            height=""
-            // border={"5px solid green"}
-          >
+          <Box>
             <DatePicker
               selected={selectedDate}
               onChange={handleDateClick}
@@ -145,7 +136,7 @@ const Calendar = () => {
       <Modal isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent>
-          <ModalHeader>Add Event</ModalHeader>
+          <ModalHeader>일정 추가</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <VStack spacing={4}>
@@ -179,7 +170,7 @@ const Calendar = () => {
 
           <ModalFooter>
             <Button colorScheme="blue" onClick={handleSaveEvent}>
-              Save
+              저장
             </Button>
           </ModalFooter>
         </ModalContent>
