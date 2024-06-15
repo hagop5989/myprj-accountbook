@@ -24,7 +24,7 @@ import { format } from "date-fns";
 
 const Calendar = () => {
   const [selectedDate, setSelectedDate] = useState(new Date());
-  const [employeeName, setEmployeeName] = useState("");
+  const [eventName, setEventName] = useState("");
   const [startTime, setStartTime] = useState("");
   const [endTime, setEndTime] = useState("");
   const [memo, setMemo] = useState("");
@@ -49,10 +49,10 @@ const Calendar = () => {
   };
 
   const handleSaveEvent = () => {
-    if (employeeName && startTime && endTime) {
+    if (eventName && startTime && endTime) {
       const hours = calculateHours(startTime, endTime);
       const newEvent = {
-        name: employeeName,
+        name: eventName,
         date: format(selectedDate, "yyyy-MM-dd"),
         start: startTime,
         end: endTime,
@@ -61,7 +61,7 @@ const Calendar = () => {
         confirmed: false,
       };
       setEvents([...events, newEvent]);
-      setEmployeeName("");
+      setEventName("");
       setStartTime("");
       setEndTime("");
       setMemo("");
@@ -78,9 +78,19 @@ const Calendar = () => {
 
   return (
     <ChakraProvider>
-      <Box display="flex" width="100vw" height="100vh">
-        <Box width="70%" p={4}>
-          <Box height="100%">
+      <Box
+        mt={"10px"}
+        ml="-733px"
+        display="flex"
+        width="95vw"
+        height="80vh"
+        // border={"1px solid red"}
+      >
+        <Box width="70%">
+          <Box
+            height=""
+            // border={"5px solid green"}
+          >
             <DatePicker
               selected={selectedDate}
               onChange={handleDateClick}
@@ -89,9 +99,16 @@ const Calendar = () => {
             />
           </Box>
         </Box>
-        <Box width="30%" p={4} bg="gray.100" overflowY="auto">
-          <Text fontSize="2xl" mb={4}>
-            Scheduled Events
+        <Box
+          width="15%"
+          mt={"-47px"}
+          p={4}
+          bg="gray.100"
+          overflowY="auto"
+          borderRadius={"15px"}
+        >
+          <Text fontSize="20px" fontWeight={"bold"}>
+            오늘의 일정
           </Text>
           <VStack spacing={4}>
             {events.map((event, index) => (
@@ -107,15 +124,16 @@ const Calendar = () => {
                   <Text>{event.name}</Text>
                   <Badge
                     colorScheme={event.confirmed ? "blue" : "red"}
+                    borderRadius={"5px"}
                     onClick={() => handleConfirm(index)}
                     cursor="pointer"
                   >
-                    {event.confirmed ? "Confirmed" : "Unconfirmed"}
+                    {event.confirmed ? "확인됨" : "미확인"}
                   </Badge>
                 </HStack>
                 <Text>{event.date}</Text>
                 <Text>
-                  {event.start} - {event.end} ({event.hours} hours)
+                  {event.start} - {event.end} 약({parseInt(event.hours)} 시간)
                 </Text>
                 <Text>{event.memo}</Text>
               </Box>
@@ -132,9 +150,9 @@ const Calendar = () => {
           <ModalBody>
             <VStack spacing={4}>
               <Input
-                placeholder="Employee Name"
-                value={employeeName}
-                onChange={(e) => setEmployeeName(e.target.value)}
+                placeholder="일정 이름"
+                value={eventName}
+                onChange={(e) => setEventName(e.target.value)}
               />
               <Input
                 type="time"
@@ -148,11 +166,11 @@ const Calendar = () => {
               />
               {startTime && endTime && (
                 <Text>
-                  Estimated Hours: {calculateHours(startTime, endTime)} hours
+                  소요 시간: {calculateHours(startTime, endTime)} 시간
                 </Text>
               )}
               <Textarea
-                placeholder="Memo"
+                placeholder="메모"
                 value={memo}
                 onChange={(e) => setMemo(e.target.value)}
               />

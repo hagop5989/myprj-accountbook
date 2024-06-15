@@ -1,4 +1,4 @@
-import { Box, Button, ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { Box, ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Page1 } from "./Page1.jsx";
 import "./App.css";
@@ -10,13 +10,10 @@ import styled from "@emotion/styled";
 import { LoginProvider } from "./LoginProvider.jsx";
 import axios from "axios";
 import { Home } from "./home/Home.jsx";
-
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMoon } from "@fortawesome/free-solid-svg-icons/faMoon";
-import { faSun } from "@fortawesome/free-solid-svg-icons/faSun";
 import BoardList from "./board/BoardList.jsx";
 import { Signup } from "./login/Signup_backUp.jsx";
 import AddressForm from "./board/AddressForm.jsx";
+import Test1 from "./board/Test1.jsx";
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -66,6 +63,7 @@ const router = createBrowserRouter([
       { path: "signup", element: <Signup /> },
       { path: "logIn", element: <Login /> },
       { path: "test", element: <AddressForm /> },
+      { path: "test1", element: <Test1 /> },
     ],
   },
 ]);
@@ -82,17 +80,17 @@ function App() {
       <ChakraProvider theme={chakraTheme}>
         <EmotionThemeProvider theme={themes[themeMode]}>
           <Wrapper>
-            <Button
-              bgColor={"gray.100"}
-              onClick={toggleTheme}
-              w={50}
-              m={3}
-              p={4}
-              fontSize={"1.5rem"}
-            >
-              {themeMode == "light" && <FontAwesomeIcon icon={faMoon} />}
-              {themeMode != "light" && <FontAwesomeIcon icon={faSun} />}
-            </Button>
+            {/*<Button*/}
+            {/*  bgColor={"gray.100"}*/}
+            {/*  onClick={toggleTheme}*/}
+            {/*  w={50}*/}
+            {/*  m={3}*/}
+            {/*  p={4}*/}
+            {/*  fontSize={"1.5rem"}*/}
+            {/*>*/}
+            {/*  {themeMode == "light" && <FontAwesomeIcon icon={faMoon} />}*/}
+            {/*  {themeMode != "light" && <FontAwesomeIcon icon={faSun} />}*/}
+            {/*</Button>*/}
             <RouterProvider router={router} />
           </Wrapper>
         </EmotionThemeProvider>

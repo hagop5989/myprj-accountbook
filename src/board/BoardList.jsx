@@ -47,7 +47,7 @@ function BoardList(props) {
     if (!account.isLoggedIn()) {
       mytoast(toast, "로그인 필요!!", "error");
       account.logout();
-      navigate("/login");
+      // navigate("/login");
     }
     fetchBoardList();
   }, []);

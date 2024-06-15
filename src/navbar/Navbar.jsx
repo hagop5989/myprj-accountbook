@@ -22,7 +22,7 @@ function Navbar(props) {
   };
 
   return (
-    <Box marginY={"20px"}>
+    <Box marginY={"0px"}>
       <Flex gap={3}>
         <Box
           {...navCss}
