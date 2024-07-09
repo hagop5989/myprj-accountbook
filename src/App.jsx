@@ -1,19 +1,20 @@
-import { Box, ChakraProvider, extendTheme } from "@chakra-ui/react";
+import { LoginProvider } from "./LoginProvider.jsx";
+import { Box, Button, ChakraProvider, extendTheme } from "@chakra-ui/react";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import { Page1 } from "./Page1.jsx";
 import "./App.css";
 import Analysis from "./board/Analysis.jsx";
 import React, { useState } from "react";
 import { Login } from "./login/Login.jsx";
-import { ThemeProvider as EmotionThemeProvider } from "@emotion/react";
 import styled from "@emotion/styled";
-import { LoginProvider } from "./LoginProvider.jsx";
 import axios from "axios";
 import { Home } from "./home/Home.jsx";
+import { ThemeProvider as EmotionThemeProvider } from "@emotion/react";
 import BoardList from "./board/BoardList.jsx";
-import { Signup } from "./login/Signup_backUp.jsx";
+import { Signup } from "./login/Signup.jsx";
 import AddressForm from "./board/AddressForm.jsx";
-import Test1 from "./board/Test1.jsx";
+import { faMoon, faSun } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 // axios interceptor 설정
 axios.interceptors.request.use((config) => {
@@ -61,9 +62,8 @@ const router = createBrowserRouter([
       { path: "page1", element: <Page1 /> },
       { path: "analysis", element: <Analysis /> },
       { path: "signup", element: <Signup /> },
-      { path: "logIn", element: <Login /> },
+      { path: "login", element: <Login /> },
       { path: "test", element: <AddressForm /> },
-      { path: "test1", element: <Test1 /> },
     ],
   },
 ]);
@@ -76,32 +76,32 @@ function App() {
   };
 
   return (
-    <LoginProvider>
-      <ChakraProvider theme={chakraTheme}>
-        <EmotionThemeProvider theme={themes[themeMode]}>
-          <Wrapper>
-            {/*<Button*/}
-            {/*  bgColor={"gray.100"}*/}
-            {/*  onClick={toggleTheme}*/}
-            {/*  w={50}*/}
-            {/*  m={3}*/}
-            {/*  p={4}*/}
-            {/*  fontSize={"1.5rem"}*/}
-            {/*>*/}
-            {/*  {themeMode == "light" && <FontAwesomeIcon icon={faMoon} />}*/}
-            {/*  {themeMode != "light" && <FontAwesomeIcon icon={faSun} />}*/}
-            {/*</Button>*/}
+    <ChakraProvider theme={chakraTheme}>
+      <EmotionThemeProvider theme={themes[themeMode]}>
+        <Wrapper>
+          <Button
+            bgColor={"gray.100"}
+            onClick={toggleTheme}
+            w={50}
+            m={3}
+            p={4}
+            fontSize={"1.5rem"}
+          >
+            {themeMode == "light" && <FontAwesomeIcon icon={faMoon} />}
+            {themeMode != "light" && <FontAwesomeIcon icon={faSun} />}
+          </Button>
+          <LoginProvider>
             <RouterProvider router={router} />
-          </Wrapper>
-        </EmotionThemeProvider>
-      </ChakraProvider>
-    </LoginProvider>
+          </LoginProvider>
+        </Wrapper>
+      </EmotionThemeProvider>
+    </ChakraProvider>
   );
 }
 
 export default App;
 
-export function mytoast(toast, text, status) {
+export function myToast(toast, text, status) {
   toast({
     description: <Box whiteSpace="pre-line">{text}</Box>,
     status: status,

@@ -13,7 +13,6 @@ import {
   Tr,
   useToast,
 } from "@chakra-ui/react";
-import { customAxios as axios } from "../customInstance.jsx";
 import {
   Bar,
   CartesianGrid,
@@ -30,7 +29,8 @@ import {
 } from "recharts";
 import { LoginContext } from "../LoginProvider.jsx";
 import { useNavigate } from "react-router-dom";
-import { mytoast } from "../App.jsx";
+import { myToast } from "../App.jsx";
+import axios from "axios";
 
 function Analysis(props) {
   const [dbRows, setDbRows] = useState([]);
@@ -42,13 +42,12 @@ function Analysis(props) {
   const navigate = useNavigate();
   const toast = useToast();
 
-  if (!account.isLoggedIn()) {
-    mytoast(toast, "로그인 필요!!", "error");
-    account.logout();
-    navigate("/login");
-  }
-
   useEffect(() => {
+    if (!account.isLoggedIn() && !localStorage.getItem("token")) {
+      myToast(toast, "로그인 필요!!", "error");
+      account.logout();
+      navigate("/login");
+    }
     axios
       .get("/api/board/list")
       .then((res) => {
@@ -62,7 +61,7 @@ function Analysis(props) {
         );
       })
       .catch((e) => console.error("Error fetching board list:", e));
-  }, [postSuccess]);
+  }, [postSuccess, account.id]);
 
   const getTotalIncomeExpense = () => {
     const totalIncome = dbRows.reduce((sum, row) => sum + row.income, 0);

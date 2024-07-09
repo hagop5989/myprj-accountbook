@@ -21,7 +21,7 @@ import React, { useContext, useEffect, useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { LoginContext } from "../LoginProvider.jsx";
-import { mytoast } from "../App.jsx";
+import { myToast } from "../App.jsx";
 
 export function MyModalBody({ editRow }) {
   const account = useContext(LoginContext);
@@ -81,7 +81,7 @@ export function MyModalBody({ editRow }) {
         files,
       })
       .then((res) => {
-        mytoast(toast, "입력완료 되었습니다.", "success");
+        myToast(toast, "입력완료 되었습니다.", "success");
         setAxiosState(!axiosState);
       })
       .catch(() => {})
@@ -92,7 +92,7 @@ export function MyModalBody({ editRow }) {
     axios
       .delete("/api/board/modal/delete", { data: { id: modalRowId } })
       .then((res) => {
-        mytoast(toast, "삭제완료 되었습니다.", "success");
+        myToast(toast, "삭제완료 되었습니다.", "success");
         setAxiosState(!axiosState);
       })
       .catch(() => {})
@@ -104,7 +104,7 @@ export function MyModalBody({ editRow }) {
     axios
       .put("/api/board/modal/update", updateRow)
       .then((res) => {
-        mytoast(toast, "수정완료 되었습니다.", "success");
+        myToast(toast, "수정완료 되었습니다.", "success");
         setAxiosState(!axiosState);
       })
       .catch(() => {})

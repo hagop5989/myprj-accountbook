@@ -19,13 +19,13 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import { customAxios as axios } from "../customInstance.jsx";
 import { LoginContext } from "../LoginProvider.jsx";
 import { useNavigate } from "react-router-dom";
-import { MyModalBody } from "./MyModalBody.jsx";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faComments } from "@fortawesome/free-solid-svg-icons";
-import { mytoast } from "../App.jsx";
+import { myToast } from "../App.jsx";
+import { MyModalBody } from "./MyModalBody.jsx";
+import axios from "axios";
 
 function BoardList(props) {
   const account = useContext(LoginContext);
@@ -44,13 +44,13 @@ function BoardList(props) {
   const toast = useToast();
 
   useEffect(() => {
-    if (!account.isLoggedIn()) {
-      mytoast(toast, "로그인 필요!!", "error");
+    if (!account.isLoggedIn() && !localStorage.getItem("token")) {
+      myToast(toast, "로그인 필요!!", "error");
       account.logout();
-      // navigate("/login");
+      navigate("/login");
     }
     fetchBoardList();
-  }, []);
+  }, [account.id]);
 
   const fetchBoardList = () => {
     axios

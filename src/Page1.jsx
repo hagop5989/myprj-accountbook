@@ -1,9 +1,8 @@
 import { Box, Flex, Heading, useToast } from "@chakra-ui/react";
-import * as PropTypes from "prop-types";
-import { useContext } from "react";
+import { useContext, useEffect } from "react";
 import { LoginContext } from "./LoginProvider.jsx";
 import { useNavigate } from "react-router-dom";
-import { mytoast } from "./App.jsx";
+import { myToast } from "./App.jsx";
 
 function MyBox1({ text }) {
   return (
@@ -21,18 +20,19 @@ function MyBox1({ text }) {
   );
 }
 
-MyBox1.propTypes = { children: PropTypes.node };
-
 export function Page1() {
   const account = useContext(LoginContext);
   const navigate = useNavigate();
   const toast = useToast();
 
-  if (!account.isLoggedIn()) {
-    mytoast(toast, "로그인 필요!!", "error");
-    account.logout();
-    navigate("/login");
-  }
+  useEffect(() => {
+    if (!account.isLoggedIn() && !localStorage.getItem("token")) {
+      myToast(toast, "로그인 필요!!", "error");
+      account.logout();
+      navigate("/login");
+    }
+  }, [account.id]);
+
   return (
     <Flex height={"80vh"} alignItems="center" justifyContent={"center"}>
       <Box>

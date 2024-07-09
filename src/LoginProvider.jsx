@@ -33,11 +33,12 @@ export function LoginProvider({ children }) {
   // login
   function login(token) {
     localStorage.setItem("token", token);
+
     const payload = jwtDecode(token);
     setExpired(payload.exp);
     setId(payload.sub);
     setNickName(payload.nickName);
-    setAuthority(payload.scope.split(" ")); // admin manager user
+    setAuthority(payload.scope.split(" "));
   }
 
   // logout
@@ -52,13 +53,13 @@ export function LoginProvider({ children }) {
   return (
     <LoginContext.Provider
       value={{
-        id: id,
-        nickName: nickName,
-        login: login,
-        logout: logout,
-        isLoggedIn: isLoggedIn,
-        hasAccess: hasAccess,
-        isAdmin: isAdmin,
+        id,
+        nickName,
+        login,
+        logout,
+        isLoggedIn,
+        hasAccess,
+        isAdmin,
       }}
     >
       {children}
